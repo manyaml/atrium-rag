@@ -118,11 +118,12 @@ function PlaygroundView({ domain, domains, cfg, setCfg, showRetrieval, showConfi
             <div className="chat-scroll scrollable">
               <div className="chat">
                 {messages.length === 0 && (
-                  <div className="empty" style={{paddingTop: 40}}>
-                    <div className="ico"><Icon.Chat size={16} /></div>
-                    <div className="text-sm text-muted" style={{marginTop: 8}}>
+                  <div style={{display:'flex', flexDirection:'column', alignItems:'center', padding:'32px 20px 16px', gap:14}}>
+                    <SearchIllustration />
+                    <div className="text-sm text-muted" style={{textAlign:'center', maxWidth:240, lineHeight:1.6}}>
                       Ask a question to start testing your pipeline.
                     </div>
+                    <div className="text-xs text-faint mono">⏎ to send</div>
                   </div>
                 )}
                 {messages.map((m, i) => (

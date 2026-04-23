@@ -39,6 +39,9 @@ function LoginView({ onLogin, domains, loading }) {
             Ask questions of your domain corpora. Change the model, the prompt, the retrieval depth — and watch
             what changes, and what doesn't.
           </p>
+          <div style={{marginTop: 32, opacity: 0.9}}>
+            <PipelineIllustration />
+          </div>
         </div>
 
         <div className="text-xs text-faint mono" style={{letterSpacing: '0.04em'}}>
