@@ -55,6 +55,21 @@ class QueryResponse(BaseModel):
     conversation_id: str
 
 
+class SearchRequest(BaseModel):
+    query: str
+    domain: str
+    k: int = 6
+    min_score: float = 0.0
+
+
+class SearchResponse(BaseModel):
+    results: list[SearchResult]
+    domain: str
+    query: str
+    k: int
+    latency_ms: int
+
+
 # ─────────────────────────────────────────────
 # ★ REPLACE THIS FUNCTION with your RAG pipeline
 # ─────────────────────────────────────────────
@@ -162,6 +177,41 @@ def query(req: QueryRequest):
         use_history=req.use_history,
         latency_ms=latency_ms,
         conversation_id=result["conversation_id"],
+    )
+
+
+@app.post("/api/search", response_model=SearchResponse)
+def search(req: SearchRequest):
+    if not req.query.strip():
+        raise HTTPException(status_code=400, detail="Query cannot be empty.")
+
+    domain_ids = [d["id"] for d in DOMAINS]
+    if req.domain not in domain_ids:
+        raise HTTPException(status_code=400, detail=f"Unknown domain: {req.domain}")
+
+    start = time.time()
+    try:
+        result = query_rag_pipeline(
+            query=req.query,
+            domain=req.domain,
+            use_history=False,
+            metadata={"search_only": True, "k": req.k},
+            conversation_id=None,
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+    latency_ms = int((time.time() - start) * 1000)
+    results = [SearchResult(**r) for r in result["search_results"]]
+    results = [r for r in results if r.score >= req.min_score]
+    results = sorted(results, key=lambda r: r.score, reverse=True)[: req.k]
+
+    return SearchResponse(
+        results=results,
+        domain=req.domain,
+        query=req.query,
+        k=req.k,
+        latency_ms=latency_ms,
     )
 
 

@@ -73,6 +73,10 @@ function App() {
     main = <PlaygroundView {...sharedProps}
       showRetrieval={tweakState.showRetrieval}
       showConfig={tweakState.showConfig} />;
+  } else if (view === 'query') {
+    main = <QueryView domain={domain} domains={domains} />;
+  } else if (view === 'search') {
+    main = <SearchView domain={domain} domains={domains} />;
   } else if (view === 'compare') {
     main = <CompareView {...sharedProps} layoutCols={tweakState.compareCols} />;
   } else if (view === 'config') {

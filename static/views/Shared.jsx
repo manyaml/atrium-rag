@@ -5,6 +5,8 @@ const { useState: useS1, useEffect: useE1, useRef: useR1 } = React;
 function Sidebar({ active, onNavigate, domain, domains, onSwitchDomain }) {
   const items = [
     { id: 'playground', label: 'Playground', icon: Icon.Chat },
+    { id: 'query',      label: 'Query',      icon: Icon.Send },
+    { id: 'search',     label: 'Search',     icon: Icon.Search },
     { id: 'compare',    label: 'Compare',    icon: Icon.Split },
     { id: 'config',     label: 'Pipeline',   icon: Icon.Settings },
     { id: 'history',    label: 'History',    icon: Icon.History },
