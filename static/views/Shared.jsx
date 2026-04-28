@@ -10,7 +10,7 @@ function Sidebar({ active, onNavigate, domain, domains, onSwitchDomain }) {
     { id: 'compare',    label: 'Compare',    icon: Icon.Split },
     { id: 'config',     label: 'Pipeline',   icon: Icon.Settings },
     { id: 'history',    label: 'History',    icon: Icon.History },
-    { id: 'sources',    label: 'Index',      icon: Icon.Book },
+    { id: 'indexes',    label: 'Indexes',    icon: Icon.Book },
   ];
   const d = domains.find(x => x.id === domain);
   return (

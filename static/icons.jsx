@@ -29,6 +29,8 @@ const Icon = {
   Star:     (p) => <Ico {...p}><path d="M8 2l1.8 4 4.2.4-3.2 2.9 1 4.1L8 11.3 4.2 13.4l1-4.1L2 6.4 6.2 6z" /></Ico>,
   Swap:     (p) => <Ico {...p}><path d="M3 5h10M10 2l3 3-3 3M13 11H3M6 14l-3-3 3-3" /></Ico>,
   Layers:   (p) => <Ico {...p}><path d="M8 2l6 3-6 3-6-3 6-3zM2 8l6 3 6-3M2 11l6 3 6-3" /></Ico>,
+  Hash:     (p) => <Ico {...p}><path d="M2 6h12M2 10h12M6 2l-1 12M11 2l-1 12" /></Ico>,
+  Pulse:    (p) => <Ico {...p}><path d="M2 8h3l2-5 2 10 2-5h3" /></Ico>,
 };
 
 window.Icon = Icon;

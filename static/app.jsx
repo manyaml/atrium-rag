@@ -9,6 +9,7 @@ const TWEAK_DEFAULTS = {
   compareCols: 2,
   showRetrieval: true,
   showConfig: true,
+  indexLayout: 'cards',
 };
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
   const [domains, setDomains] = useSA([]);
   const [domainsLoading, setDomainsLoading] = useSA(true);
   const [cfg, setCfg] = useSA({ ...DEFAULT_CONFIG });
+  const [selectedIndex, setSelectedIndex] = useSA(null);
   const [tweakState, setTweakState] = useSA(() => {
     const stored = localStorage.getItem('atrium.tweaks');
     return stored ? { ...TWEAK_DEFAULTS, ...JSON.parse(stored) } : { ...TWEAK_DEFAULTS };
@@ -83,6 +85,16 @@ function App() {
     main = <ConfigView cfg={cfg} setCfg={setCfg} />;
   } else if (view === 'history') {
     main = <HistoryView domain={domain} domains={domains} onOpen={() => setView('playground')} />;
+  } else if (view === 'indexes') {
+    main = <IndexListView
+      layout={tweakState.indexLayout}
+      setLayout={(v) => setTweakState({ ...tweakState, indexLayout: v })}
+      onPick={(id) => { setSelectedIndex(id); setView('index-detail'); }}
+      onNew={() => setView('index-new')} />;
+  } else if (view === 'index-detail') {
+    main = <IndexDetailView id={selectedIndex} onBack={() => setView('indexes')} />;
+  } else if (view === 'index-new') {
+    main = <OnboardingView onCancel={() => setView('indexes')} onComplete={() => setView('indexes')} />;
   } else if (view === 'sources') {
     main = <SourcesView domain={domain} domains={domains} />;
   }
@@ -90,7 +102,7 @@ function App() {
   return (
     <div className="app">
       <Sidebar
-        active={view}
+        active={view === 'index-detail' || view === 'index-new' ? 'indexes' : view}
         onNavigate={setView}
         domain={domain}
         domains={domains}
