@@ -1,0 +1,83 @@
+<svg class="vh" viewBox="0 0 880 280" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" data-om-id="0a07a5a7:383">
+      <defs data-om-id="0a07a5a7:384">
+        <radialGradient id="auraGlowOuter" data-om-id="0a07a5a7:385">
+          <stop offset="0%" stop-color="var(--accent)" stop-opacity=".40" data-om-id="0a07a5a7:386"></stop>
+          <stop offset="35%" stop-color="var(--accent)" stop-opacity=".10" data-om-id="0a07a5a7:387"></stop>
+          <stop offset="100%" stop-color="var(--accent)" stop-opacity="0" data-om-id="0a07a5a7:388"></stop>
+        </radialGradient>
+        <radialGradient id="auraGlowInner" data-om-id="0a07a5a7:389">
+          <stop offset="0%" stop-color="var(--accent)" stop-opacity=".75" data-om-id="0a07a5a7:390"></stop>
+          <stop offset="60%" stop-color="var(--accent)" stop-opacity=".10" data-om-id="0a07a5a7:391"></stop>
+          <stop offset="100%" stop-color="var(--accent)" stop-opacity="0" data-om-id="0a07a5a7:392"></stop>
+        </radialGradient>
+      </defs>
+
+      <!-- big diffuse aura behind everything -->
+      <ellipse cx="440" cy="140" rx="280" ry="180" fill="url(#auraGlowOuter)" data-om-id="0a07a5a7:393"></ellipse>
+      <ellipse cx="440" cy="140" rx="160" ry="110" fill="url(#auraGlowInner)" opacity=".7" data-om-id="0a07a5a7:394"></ellipse>
+
+      <!-- expanding rings, very soft -->
+      <g data-om-id="0a07a5a7:395">
+        <circle class="ring" cx="440" cy="140" r="50" fill="none" stroke="var(--accent)" stroke-width=".8" opacity=".4" style="transform-origin:440px 140px" data-om-id="0a07a5a7:396"></circle>
+        <circle class="ring r2" cx="440" cy="140" r="50" fill="none" stroke="var(--accent)" stroke-width=".8" opacity=".3" style="transform-origin:440px 140px" data-om-id="0a07a5a7:397"></circle>
+        <circle class="ring r3" cx="440" cy="140" r="50" fill="none" stroke="var(--accent)" stroke-width=".8" opacity=".25" style="transform-origin:440px 140px" data-om-id="0a07a5a7:398"></circle>
+      </g>
+
+      <!-- inner orbit — NO guide lines, just floating sources -->
+      <g class="orbit-a" data-om-id="0a07a5a7:399">
+        <!-- doc -->
+        <g transform="translate(440,50)" class="twinkle" data-om-id="0a07a5a7:400">
+          <rect x="-14" y="-10" width="28" height="20" rx="3" fill="none" stroke="var(--ink-2)" stroke-width=".8" opacity=".55" data-om-id="0a07a5a7:401"></rect>
+          <line x1="-9" y1="-4" x2="7" y2="-4" stroke="var(--ink-2)" stroke-width=".8" opacity=".4" data-om-id="0a07a5a7:402"></line>
+          <line x1="-9" y1="0" x2="9" y2="0" stroke="var(--ink-2)" stroke-width=".8" opacity=".4" data-om-id="0a07a5a7:403"></line>
+          <line x1="-9" y1="4" x2="4" y2="4" stroke="var(--ink-2)" stroke-width=".8" opacity=".4" data-om-id="0a07a5a7:404"></line>
+        </g>
+        <!-- db -->
+        <g transform="translate(530,140)" class="twinkle d2" data-om-id="0a07a5a7:405">
+          <ellipse cx="0" cy="-6" rx="12" ry="3.5" fill="none" stroke="var(--ink-2)" stroke-width=".8" opacity=".55" data-om-id="0a07a5a7:406"></ellipse>
+          <path d="M-12 -6 v12 a12 3.5 0 0 0 24 0 v-12" fill="none" stroke="var(--ink-2)" stroke-width=".8" opacity=".55" data-om-id="0a07a5a7:407"></path>
+          <path d="M-12 0 a12 3.5 0 0 0 24 0" fill="none" stroke="var(--ink-2)" stroke-width=".8" opacity=".4" data-om-id="0a07a5a7:408"></path>
+        </g>
+        <!-- code -->
+        <g transform="translate(440,230)" class="twinkle d3" data-om-id="0a07a5a7:409">
+          <rect x="-15" y="-10" width="30" height="20" rx="3" fill="none" stroke="var(--ink-2)" stroke-width=".8" opacity=".55" data-om-id="0a07a5a7:410"></rect>
+          <text x="-10" y="3" font-size="9" fill="var(--ink-2)" opacity=".55" font-family="&quot;JetBrains Mono&quot;, monospace" data-om-id="0a07a5a7:411">&lt;/&gt;</text>
+        </g>
+        <!-- web -->
+        <g transform="translate(350,140)" class="twinkle d4" data-om-id="0a07a5a7:412">
+          <circle cx="0" cy="0" r="11" fill="none" stroke="var(--ink-2)" stroke-width=".8" opacity=".55" data-om-id="0a07a5a7:413"></circle>
+          <ellipse cx="0" cy="0" rx="11" ry="4.5" fill="none" stroke="var(--ink-2)" stroke-width=".8" opacity=".4" data-om-id="0a07a5a7:414"></ellipse>
+          <line x1="-11" y1="0" x2="11" y2="0" stroke="var(--ink-2)" stroke-width=".8" opacity=".4" data-om-id="0a07a5a7:415"></line>
+        </g>
+      </g>
+
+      <!-- outer orbit — faded particles, like distant stars -->
+      <g class="orbit-b" data-om-id="0a07a5a7:416">
+        <circle cx="440" cy="0" r="2" fill="var(--ink-2)" opacity=".4" class="twinkle d3" data-om-id="0a07a5a7:417"></circle>
+        <circle cx="610" cy="140" r="2" fill="var(--ink-2)" opacity=".4" class="twinkle" data-om-id="0a07a5a7:418"></circle>
+        <circle cx="440" cy="280" r="2" fill="var(--ink-2)" opacity=".4" class="twinkle d4" data-om-id="0a07a5a7:419"></circle>
+        <circle cx="270" cy="140" r="2" fill="var(--ink-2)" opacity=".4" class="twinkle d2" data-om-id="0a07a5a7:420"></circle>
+        <circle cx="560" cy="40" r="1.6" fill="var(--ink-2)" opacity=".3" class="twinkle d4" data-om-id="0a07a5a7:421"></circle>
+        <circle cx="560" cy="240" r="1.6" fill="var(--ink-2)" opacity=".3" class="twinkle" data-om-id="0a07a5a7:422"></circle>
+        <circle cx="320" cy="40" r="1.6" fill="var(--ink-2)" opacity=".3" class="twinkle d3" data-om-id="0a07a5a7:423"></circle>
+        <circle cx="320" cy="240" r="1.6" fill="var(--ink-2)" opacity=".3" class="twinkle d2" data-om-id="0a07a5a7:424"></circle>
+      </g>
+
+      <!-- inward-drifting chunks -->
+      <g transform="translate(440,140)" data-om-id="0a07a5a7:425">
+        <circle class="chunk" r="2.5" fill="var(--accent)" style="--dx:0px; --dy:-90px; transform-origin:0 0" data-om-id="0a07a5a7:426"></circle>
+        <circle class="chunk" r="2.5" fill="var(--accent)" style="--dx:90px; --dy:0px; animation-delay:1.3s; transform-origin:0 0" data-om-id="0a07a5a7:427"></circle>
+        <circle class="chunk" r="2.5" fill="var(--accent)" style="--dx:0px; --dy:90px; animation-delay:2.6s; transform-origin:0 0" data-om-id="0a07a5a7:428"></circle>
+        <circle class="chunk" r="2.5" fill="var(--accent)" style="--dx:-90px; --dy:0px; animation-delay:3.9s; transform-origin:0 0" data-om-id="0a07a5a7:429"></circle>
+      </g>
+
+      <!-- core (static, centered) -->
+      <g transform="translate(440,140)" data-om-id="0a07a5a7:430">
+        <circle r="56" fill="url(#auraGlowInner)" data-om-id="0a07a5a7:431"></circle>
+        <circle r="24" fill="#1c1f26" stroke="var(--accent)" stroke-width="1" opacity=".75" data-om-id="0a07a5a7:432"></circle>
+        <circle r="16" fill="none" stroke="var(--accent)" stroke-width=".8" opacity=".4" data-om-id="0a07a5a7:433"></circle>
+        <g class="core-spin" data-om-id="0a07a5a7:434">
+          <path d="M 0 -9 L 2.6 -2.6 L 9 0 L 2.6 2.6 L 0 9 L -2.6 2.6 L -9 0 L -2.6 -2.6 Z" fill="var(--accent)" opacity=".95" data-om-id="0a07a5a7:435"></path>
+        </g>
+      </g>
+    </svg>
