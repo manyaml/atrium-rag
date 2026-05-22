@@ -115,32 +115,33 @@ function PlaygroundView({ domain, domains, cfg, setCfg, showRetrieval, showConfi
           )}
 
           <div className="chat-panel">
-            <div className="chat-scroll scrollable">
-              <div className="chat">
-                {messages.length === 0 && (
-                  <div className="empty" style={{paddingTop: 40}}>
-                    <div className="ico"><Icon.Chat size={16} /></div>
-                    <div className="text-sm text-muted" style={{marginTop: 8}}>
-                      Ask a question to start testing your pipeline.
+            {messages.length === 0 && !sending && (
+              <AgenticHero
+                domainId={domain}
+                domainName={domainObj?.name}
+                onSelect={(q) => handleSend(q)}
+              />
+            )}
+            {messages.length > 0 && (
+              <div className="chat-scroll scrollable">
+                <div className="chat">
+                  {messages.map((m, i) => (
+                    <Message key={i} msg={m} index={Math.floor(i / 2) + 1} />
+                  ))}
+                  {sending && (
+                    <div className="msg">
+                      <div className="msg-avatar ai">AI</div>
+                      <div className="msg-body">
+                        <div className="msg-meta"><span className="author">Pipeline</span><span className="mono text-faint">· thinking…</span></div>
+                        <div className="msg-text text-muted">Retrieving and generating…</div>
+                      </div>
                     </div>
-                  </div>
-                )}
-                {messages.map((m, i) => (
-                  <Message key={i} msg={m} index={Math.floor(i / 2) + 1} />
-                ))}
-                {sending && (
-                  <div className="msg">
-                    <div className="msg-avatar ai">AI</div>
-                    <div className="msg-body">
-                      <div className="msg-meta"><span className="author">Pipeline</span><span className="mono text-faint">· thinking…</span></div>
-                      <div className="msg-text text-muted">Retrieving and generating…</div>
-                    </div>
-                  </div>
-                )}
-                <div ref={chatEndRef} />
+                  )}
+                  <div ref={chatEndRef} />
+                </div>
               </div>
-            </div>
-            <Composer onSend={handleSend} suggestions={suggestions} disabled={sending} />
+            )}
+            <Composer onSend={handleSend} suggestions={[]} disabled={sending} />
           </div>
 
           {showRetrieval && (

@@ -1,0 +1,128 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 280" width="880" height="280">
+  <defs>
+    <radialGradient id="coreGlow">
+      <stop offset="0%" stop-color="#e25a3c" stop-opacity=".55"/>
+      <stop offset="60%" stop-color="#e25a3c" stop-opacity=".05"/>
+      <stop offset="100%" stop-color="#e25a3c" stop-opacity="0"/>
+    </radialGradient>
+
+    <style>
+      @keyframes corespin  { to { transform: rotate(360deg); } }
+      @keyframes spin      { to { transform: rotate(360deg); } }
+      @keyframes twinkle   { 0%,100% { opacity:.35 } 50% { opacity:1 } }
+      @keyframes chunk-in  {
+        0%   { opacity:0; transform:scale(.6); }
+        15%  { opacity:1; }
+        78%  { opacity:1; }
+        100% { opacity:0; transform:scale(.4) translate(var(--dx,0), var(--dy,0)); }
+      }
+      @keyframes ringpulse {
+        0%   { opacity:.5; transform:scale(.95); }
+        100% { opacity:0;  transform:scale(1.6); }
+      }
+
+      .core-spin {
+        animation: corespin 14s linear infinite;
+        transform-box: fill-box;
+        transform-origin: center;
+      }
+      .orbit-a { transform-origin:440px 140px; animation:spin 28s linear infinite; }
+      .orbit-b { transform-origin:440px 140px; animation:spin 40s linear infinite reverse; }
+
+      .twinkle    { animation:twinkle 3s ease-in-out infinite; }
+      .twinkle.d2 { animation-delay:.8s; }
+      .twinkle.d3 { animation-delay:1.5s; }
+      .twinkle.d4 { animation-delay:2.2s; }
+
+      .chunk      { animation:chunk-in 4.8s ease-in infinite; }
+
+      .ring       { animation:ringpulse 3.6s ease-in-out infinite; transform-origin:440px 140px; }
+      .ring.r2    { animation-delay:1.2s; }
+      .ring.r3    { animation-delay:2.4s; }
+    </style>
+  </defs>
+
+  <!-- expanding rings -->
+  <circle class="ring"    cx="440" cy="140" r="50" fill="none" stroke="#e25a3c" stroke-width="1"/>
+  <circle class="ring r2" cx="440" cy="140" r="50" fill="none" stroke="#e25a3c" stroke-width="1"/>
+  <circle class="ring r3" cx="440" cy="140" r="50" fill="none" stroke="#e25a3c" stroke-width="1"/>
+
+  <!-- orbit guides -->
+  <circle cx="440" cy="140" r="90"  fill="none" stroke="#2a2e38" stroke-width="1" stroke-dasharray="2 4" opacity=".5"/>
+  <circle cx="440" cy="140" r="130" fill="none" stroke="#2a2e38" stroke-width="1" stroke-dasharray="2 4" opacity=".35"/>
+
+  <!-- inner orbit — 4 knowledge-source icons -->
+  <g class="orbit-a">
+    <!-- doc -->
+    <g transform="translate(440,50)" class="twinkle">
+      <rect x="-14" y="-10" width="28" height="20" rx="3" fill="none" stroke="#a2a7b3" stroke-width="1.25"/>
+      <line x1="-9" y1="-4" x2="7"  y2="-4" stroke="#a2a7b3" stroke-width="1"/>
+      <line x1="-9" y1="0"  x2="9"  y2="0"  stroke="#a2a7b3" stroke-width="1"/>
+      <line x1="-9" y1="4"  x2="4"  y2="4"  stroke="#a2a7b3" stroke-width="1"/>
+    </g>
+    <!-- db -->
+    <g transform="translate(530,140)" class="twinkle d2">
+      <ellipse cx="0" cy="-6" rx="12" ry="3.5" fill="none" stroke="#a2a7b3" stroke-width="1.25"/>
+      <path d="M-12 -6 v12 a12 3.5 0 0 0 24 0 v-12" fill="none" stroke="#a2a7b3" stroke-width="1.25"/>
+      <path d="M-12 0 a12 3.5 0 0 0 24 0"          fill="none" stroke="#a2a7b3" stroke-width="1"/>
+    </g>
+    <!-- code / api -->
+    <g transform="translate(440,230)" class="twinkle d3">
+      <rect x="-15" y="-10" width="30" height="20" rx="3" fill="none" stroke="#a2a7b3" stroke-width="1.25"/>
+      <text fill="#a2a7b3" font-family='"JetBrains Mono",monospace' font-size="9" x="-10" y="3">&lt;/&gt;</text>
+    </g>
+    <!-- web -->
+    <g transform="translate(350,140)" class="twinkle d4">
+      <circle cx="0" cy="0" r="11" fill="none" stroke="#a2a7b3" stroke-width="1.25"/>
+      <ellipse cx="0" cy="0" rx="11" ry="4.5" fill="none" stroke="#a2a7b3" stroke-width="1"/>
+      <line x1="-11" y1="0" x2="11" y2="0" stroke="#a2a7b3" stroke-width="1"/>
+    </g>
+  </g>
+
+  <!-- outer orbit — faint secondary icons -->
+  <g class="orbit-b">
+    <g transform="translate(440,10)" class="twinkle d3">
+      <rect x="-12" y="-8" width="24" height="16" rx="2" fill="none" stroke="#6b7180" stroke-width="1"/>
+      <line x1="-8" y1="-3" x2="6" y2="-3" stroke="#6b7180" stroke-width="1"/>
+      <line x1="-8" y1="1"  x2="8" y2="1"  stroke="#6b7180" stroke-width="1"/>
+    </g>
+    <g transform="translate(570,140)" class="twinkle">
+      <rect x="-12" y="-8" width="24" height="16" rx="2" fill="none" stroke="#6b7180" stroke-width="1"/>
+      <line x1="-8" y1="-3" x2="6" y2="-3" stroke="#6b7180" stroke-width="1"/>
+      <line x1="-8" y1="1"  x2="8" y2="1"  stroke="#6b7180" stroke-width="1"/>
+    </g>
+    <g transform="translate(440,270)" class="twinkle d4">
+      <rect x="-12" y="-8" width="24" height="16" rx="2" fill="none" stroke="#6b7180" stroke-width="1"/>
+      <line x1="-8" y1="-3" x2="6" y2="-3" stroke="#6b7180" stroke-width="1"/>
+      <line x1="-8" y1="1"  x2="8" y2="1"  stroke="#6b7180" stroke-width="1"/>
+    </g>
+    <g transform="translate(310,140)" class="twinkle d2">
+      <rect x="-12" y="-8" width="24" height="16" rx="2" fill="none" stroke="#6b7180" stroke-width="1"/>
+      <line x1="-8" y1="-3" x2="6" y2="-3" stroke="#6b7180" stroke-width="1"/>
+      <line x1="-8" y1="1"  x2="8" y2="1"  stroke="#6b7180" stroke-width="1"/>
+    </g>
+  </g>
+
+  <!-- inward-flying chunks -->
+  <g transform="translate(440,140)">
+    <rect class="chunk" x="-3" y="-3" width="6" height="6" fill="#e25a3c"
+          style="--dx:0px;--dy:-86px;transform-origin:0 0"/>
+    <rect class="chunk" x="-3" y="-3" width="6" height="6" fill="#e25a3c"
+          style="--dx:86px;--dy:0px;animation-delay:.9s;transform-origin:0 0"/>
+    <rect class="chunk" x="-3" y="-3" width="6" height="6" fill="#e25a3c"
+          style="--dx:0px;--dy:86px;animation-delay:1.8s;transform-origin:0 0"/>
+    <rect class="chunk" x="-3" y="-3" width="6" height="6" fill="#e25a3c"
+          style="--dx:-86px;--dy:0px;animation-delay:2.7s;transform-origin:0 0"/>
+  </g>
+
+  <!-- core — pinned dead-center -->
+  <g transform="translate(440,140)">
+    <circle r="56" fill="url(#coreGlow)"/>
+    <circle r="28" fill="none" stroke="#e25a3c" stroke-width="1.5"/>
+    <circle r="20" fill="none" stroke="#e25a3c" stroke-width="1" opacity=".5"/>
+    <!-- rotating spark glyph -->
+    <g class="core-spin">
+      <path d="M 0 -10 L 3 -3 L 10 0 L 3 3 L 0 10 L -3 3 L -10 0 L -3 -3 Z" fill="#e25a3c"/>
+    </g>
+  </g>
+</svg>
