@@ -1,0 +1,144 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 280" width="880" height="280">
+  <defs>
+    <radialGradient id="auraGlowOuter" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"   stop-color="#e25a3c" stop-opacity=".40"/>
+      <stop offset="35%"  stop-color="#e25a3c" stop-opacity=".10"/>
+      <stop offset="100%" stop-color="#e25a3c" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="auraGlowInner" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"   stop-color="#e25a3c" stop-opacity=".75"/>
+      <stop offset="60%"  stop-color="#e25a3c" stop-opacity=".10"/>
+      <stop offset="100%" stop-color="#e25a3c" stop-opacity="0"/>
+    </radialGradient>
+
+    <style>
+      /* ── Aura variant — calm, slow, no rigid orbit lines ── */
+      @keyframes aura-corespin {
+        to { transform: rotate(360deg); }
+      }
+      @keyframes aura-spin {
+        to { transform: rotate(360deg); }
+      }
+      @keyframes aura-twinkle {
+        0%, 100% { opacity: .2; }
+        50%       { opacity: .7; }
+      }
+      @keyframes aura-chunk-in {
+        0%   { opacity: 0; transform: scale(.6); }
+        15%  { opacity: .9; }
+        78%  { opacity: .9; }
+        100% { opacity: 0; transform: scale(.3) translate(var(--dx, 0), var(--dy, 0)); }
+      }
+      @keyframes aura-ringpulse {
+        0%   { opacity: .4; transform: scale(.95); }
+        100% { opacity: 0;  transform: scale(1.7); }
+      }
+
+      .aura-core-spin {
+        animation: aura-corespin 22s linear infinite;
+        transform-box: fill-box;
+        transform-origin: center;
+      }
+      .aura-orbit-a {
+        transform-origin: 440px 140px;
+        animation: aura-spin 44s linear infinite;
+      }
+      .aura-orbit-b {
+        transform-origin: 440px 140px;
+        animation: aura-spin 60s linear infinite reverse;
+      }
+      .aura-twinkle     { animation: aura-twinkle 5s ease-in-out infinite; }
+      .aura-twinkle.d2  { animation-delay: .8s; }
+      .aura-twinkle.d3  { animation-delay: 1.5s; }
+      .aura-twinkle.d4  { animation-delay: 2.2s; }
+
+      .aura-chunk       { animation: aura-chunk-in 7s ease-in infinite; }
+
+      .aura-ring        { animation: aura-ringpulse 6s ease-in-out infinite; transform-origin: 440px 140px; }
+      .aura-ring.r2     { animation-delay: 2s; }
+      .aura-ring.r3     { animation-delay: 4s; }
+    </style>
+  </defs>
+
+  <!-- big diffuse aura glow -->
+  <ellipse cx="440" cy="140" rx="280" ry="180" fill="url(#auraGlowOuter)"/>
+  <ellipse cx="440" cy="140" rx="160" ry="110" fill="url(#auraGlowInner)" opacity=".7"/>
+
+  <!-- expanding rings — very soft -->
+  <circle class="aura-ring"    cx="440" cy="140" r="50" fill="none" stroke="#e25a3c" stroke-width=".8" opacity=".4"/>
+  <circle class="aura-ring r2" cx="440" cy="140" r="50" fill="none" stroke="#e25a3c" stroke-width=".8" opacity=".3"/>
+  <circle class="aura-ring r3" cx="440" cy="140" r="50" fill="none" stroke="#e25a3c" stroke-width=".8" opacity=".25"/>
+
+  <!-- inner orbit — ghost source icons, no guide ring -->
+  <g class="aura-orbit-a">
+    <!-- doc -->
+    <g transform="translate(440,50)" class="aura-twinkle">
+      <rect x="-14" y="-10" width="28" height="20" rx="3"
+            fill="none" stroke="#a2a7b3" stroke-width=".8" opacity=".55"/>
+      <line x1="-9" y1="-4" x2="7"  y2="-4" stroke="#a2a7b3" stroke-width=".8" opacity=".4"/>
+      <line x1="-9" y1="0"  x2="9"  y2="0"  stroke="#a2a7b3" stroke-width=".8" opacity=".4"/>
+      <line x1="-9" y1="4"  x2="4"  y2="4"  stroke="#a2a7b3" stroke-width=".8" opacity=".4"/>
+    </g>
+    <!-- db -->
+    <g transform="translate(530,140)" class="aura-twinkle d2">
+      <ellipse cx="0" cy="-6" rx="12" ry="3.5"
+               fill="none" stroke="#a2a7b3" stroke-width=".8" opacity=".55"/>
+      <path d="M-12 -6 v12 a12 3.5 0 0 0 24 0 v-12"
+            fill="none" stroke="#a2a7b3" stroke-width=".8" opacity=".55"/>
+      <path d="M-12 0 a12 3.5 0 0 0 24 0"
+            fill="none" stroke="#a2a7b3" stroke-width=".8" opacity=".4"/>
+    </g>
+    <!-- code / api -->
+    <g transform="translate(440,230)" class="aura-twinkle d3">
+      <rect x="-15" y="-10" width="30" height="20" rx="3"
+            fill="none" stroke="#a2a7b3" stroke-width=".8" opacity=".55"/>
+      <text x="-10" y="3" font-size="9"
+            fill="#a2a7b3" opacity=".55"
+            font-family='"JetBrains Mono", monospace'>&lt;/&gt;</text>
+    </g>
+    <!-- web -->
+    <g transform="translate(350,140)" class="aura-twinkle d4">
+      <circle cx="0" cy="0" r="11"
+              fill="none" stroke="#a2a7b3" stroke-width=".8" opacity=".55"/>
+      <ellipse cx="0" cy="0" rx="11" ry="4.5"
+               fill="none" stroke="#a2a7b3" stroke-width=".8" opacity=".4"/>
+      <line x1="-11" y1="0" x2="11" y2="0"
+            stroke="#a2a7b3" stroke-width=".8" opacity=".4"/>
+    </g>
+  </g>
+
+  <!-- outer orbit — distant star-like particles -->
+  <g class="aura-orbit-b">
+    <circle cx="440" cy="0"   r="2"   fill="#a2a7b3" opacity=".4" class="aura-twinkle d3"/>
+    <circle cx="610" cy="140" r="2"   fill="#a2a7b3" opacity=".4" class="aura-twinkle"/>
+    <circle cx="440" cy="280" r="2"   fill="#a2a7b3" opacity=".4" class="aura-twinkle d4"/>
+    <circle cx="270" cy="140" r="2"   fill="#a2a7b3" opacity=".4" class="aura-twinkle d2"/>
+    <circle cx="560" cy="40"  r="1.6" fill="#a2a7b3" opacity=".3" class="aura-twinkle d4"/>
+    <circle cx="560" cy="240" r="1.6" fill="#a2a7b3" opacity=".3" class="aura-twinkle"/>
+    <circle cx="320" cy="40"  r="1.6" fill="#a2a7b3" opacity=".3" class="aura-twinkle d3"/>
+    <circle cx="320" cy="240" r="1.6" fill="#a2a7b3" opacity=".3" class="aura-twinkle d2"/>
+  </g>
+
+  <!-- inward-drifting accent dots -->
+  <g transform="translate(440,140)">
+    <circle class="aura-chunk" r="2.5" fill="#e25a3c"
+            style="--dx:0px;--dy:-90px;transform-origin:0 0"/>
+    <circle class="aura-chunk" r="2.5" fill="#e25a3c"
+            style="--dx:90px;--dy:0px;animation-delay:1.3s;transform-origin:0 0"/>
+    <circle class="aura-chunk" r="2.5" fill="#e25a3c"
+            style="--dx:0px;--dy:90px;animation-delay:2.6s;transform-origin:0 0"/>
+    <circle class="aura-chunk" r="2.5" fill="#e25a3c"
+            style="--dx:-90px;--dy:0px;animation-delay:3.9s;transform-origin:0 0"/>
+  </g>
+
+  <!-- core — pinned dead-center -->
+  <g transform="translate(440,140)">
+    <circle r="56"  fill="url(#auraGlowInner)"/>
+    <circle r="24"  fill="transparent" stroke="#e25a3c" stroke-width="1"  opacity=".75"/>
+    <circle r="16"  fill="none"        stroke="#e25a3c" stroke-width=".8" opacity=".4"/>
+    <g class="aura-core-spin">
+      <path d="M 0 -9 L 2.6 -2.6 L 9 0 L 2.6 2.6 L 0 9 L -2.6 2.6 L -9 0 L -2.6 -2.6 Z"
+            fill="#e25a3c" opacity=".95"/>
+    </g>
+  </g>
+</svg>
