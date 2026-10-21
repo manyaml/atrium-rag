@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Heat Matrix — compare</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;700;900&amp;family=Space+Mono:wght@400;700&amp;display=swap">
+<style>
+body{margin:0;background:#FFFFFF}
+a{color:#C41E16}a:hover{color:#000000}
+input,select,textarea,button{font:inherit;color:inherit}
+button{cursor:pointer}
+button:disabled{cursor:not-allowed;opacity:.35}
+input[type=range]{accent-color:#000000;width:100%;margin:0;height:24px}
+input[type=checkbox]{accent-color:#C41E16;width:20px;height:20px;margin:0}
+select,textarea{border:1px solid #000000;border-radius:0;background:#FFFFFF}
+:focus-visible{outline:3px solid #C41E16;outline-offset:1px}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #FFFFFF; color: #000000; font-family: 'Archivo', 'Helvetica Neue', Arial, sans-serif; font-size: 14px">
+<div style="max-width: 1360px; margin: 0 auto; padding: 40px 32px 64px; display: flex; flex-direction: column; gap: 32px">
+
+  <header style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; align-items: end; border-bottom: 8px solid #000000; padding-bottom: 20px">
+    <div style="display: flex; flex-direction: column; gap: 6px">
+      <span style="font-family: 'Space Mono', monospace; font-size: 13px">RAG / Compare / Matrix</span>
+      <h1 style="margin: 0; font-size: 88px; line-height: .88; font-weight: 900; letter-spacing: -.04em">Com—<br>pare.</h1>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 10px">
+      <label for="mx-q" style="font-family: 'Space Mono', monospace; font-size: 13px">Query</label>
+      <input id="mx-q" type="text" value="{{query}}" onChange="{{setQuery}}" onKeyDown="{{queryKey}}" style="border: 0; border-bottom: 3px solid #000000; padding: 6px 0; font-size: 28px; font-weight: 700; letter-spacing: -.01em; background: transparent">
+      <div style="display: flex; gap: 8px; flex-wrap: wrap">
+        <button type="button" onClick="{{runAll}}" style="min-height: 48px; padding: 0 22px; border: 0; background: #C41E16; color: #FFFFFF; font-weight: 700; font-size: 16px">{{runLabel}}</button>
+        <button type="button" onClick="{{addCol}}" disabled="{{cannotAdd}}" style="min-height: 48px; padding: 0 18px; border: 2px solid #000000; background: #FFFFFF; font-weight: 700">+ Column</button>
+      </div>
+    </div>
+  </header>
+
+  <div style="overflow-x: auto">
+    <div role="grid" aria-label="Configuration and results matrix" style="display: grid; grid-template-columns: {{cols}}; min-width: {{minW}}">
+
+      <div role="row" style="display: contents">
+        <div role="columnheader" style="padding: 12px 12px 12px 0; border-bottom: 3px solid #000000; font-family: 'Space Mono', monospace; font-size: 13px; display: flex; align-items: flex-end">Variant</div>
+        <sc-for list="{{heads}}" as="h" hint-placeholder-count="3">
+          <div role="columnheader" style="padding: 12px; border-bottom: 3px solid #000000; border-left: 1px solid #000000; display: flex; align-items: flex-end; gap: 10px">
+            <span style="font-size: 56px; font-weight: 900; line-height: .8; letter-spacing: -.04em">{{h.id}}</span>
+            <span style="flex: 1; display: flex; flex-direction: column">
+              <span style="font-weight: 700">{{h.name}}</span>
+              <span style="font-family: 'Space Mono', monospace; font-size: 12px">{{h.status}}</span>
+            </span>
+            <button type="button" onClick="{{h.remove}}" disabled="{{h.cannotRemove}}" aria-label="Remove column {{h.id}}" style="width: 36px; height: 36px; border: 1px solid #000000; background: #FFFFFF; font-size: 18px; line-height: 1">×</button>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="grid-column: 1 / -1; padding: 22px 0 8px; font-weight: 900; font-size: 22px; letter-spacing: -.01em; display: flex; justify-content: space-between; align-items: baseline">
+        <span>01 Specification</span><span style="font-family: 'Space Mono', monospace; font-size: 12px; font-weight: 400"><span style="display: inline-block; width: 10px; height: 10px; background: #C41E16; margin-right: 6px"></span>differs from A</span>
+      </div>
+      <sc-for list="{{spec}}" as="row" hint-placeholder-count="9">
+        <div role="row" style="display: contents">
+          <div role="rowheader" style="padding: 10px 12px 10px 0; border-top: 1px solid #000000; display: flex; flex-direction: column; gap: 2px">
+            <span style="font-weight: 700">{{row.label}}</span>
+            <span style="font-family: 'Space Mono', monospace; font-size: 11.5px; color: #4D4D4D">{{row.hint}}</span>
+          </div>
+          <sc-for list="{{row.cells}}" as="c" hint-placeholder-count="3">
+            <div role="gridcell" style="{{c.style}}">
+              <sc-if value="{{c.isModel}}" hint-placeholder-val="{{ false }}">
+                <select aria-label="Model for {{c.vid}}" value="{{c.value}}" onChange="{{c.set}}" style="width: 100%; min-height: 40px; padding: 0 8px">
+                  <option value="claude-opus-5-5">Claude Opus 5.5</option>
+                  <option value="claude-sonnet-5-5">Claude Sonnet 5.5</option>
+                  <option value="claude-haiku-5-5">Claude Haiku 5.5</option>
+                  <option value="gpt-4o">GPT-4o</option>
+                  <option value="llama-3-70b">Llama 3 70B</option>
+                </select>
+              </sc-if>
+              <sc-if value="{{c.isPrompt}}" hint-placeholder-val="{{ false }}">
+                <textarea aria-label="System prompt for {{c.vid}}" rows="3" value="{{c.value}}" onChange="{{c.set}}" style="width: 100%; box-sizing: border-box; padding: 6px 8px; font-family: 'Space Mono', monospace; font-size: 11.5px; line-height: 1.45; resize: vertical"></textarea>
+              </sc-if>
+              <sc-if value="{{c.isSection}}" hint-placeholder-val="{{ false }}">
+                <select aria-label="Section boost for {{c.vid}}" value="{{c.value}}" onChange="{{c.set}}" style="width: 100%; min-height: 40px; padding: 0 8px">
+                  <option value="none">None</option>
+                  <option value="security">security/</option>
+                  <option value="guides">guides/</option>
+                  <option value="changelog">changelog/</option>
+                  <option value="reference">reference/</option>
+                </select>
+              </sc-if>
+              <sc-if value="{{c.isRange}}" hint-placeholder-val="{{ true }}">
+                <div style="display: flex; align-items: center; gap: 10px">
+                  <input type="range" aria-label="{{c.aria}}" min="{{c.min}}" max="{{c.max}}" step="{{c.step}}" value="{{c.value}}" onChange="{{c.set}}">
+                  <span style="font-family: 'Space Mono', monospace; font-weight: 700; min-width: 40px; text-align: right">{{c.shown}}</span>
+                </div>
+              </sc-if>
+              <sc-if value="{{c.isCheck}}" hint-placeholder-val="{{ false }}">
+                <label style="display: flex; align-items: center; gap: 10px; min-height: 40px; font-weight: 700"><input type="checkbox" checked="{{c.value}}" onChange="{{c.set}}"> {{c.shown}}</label>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+      </sc-for>
+
+      <div style="grid-column: 1 / -1; padding: 28px 0 8px; font-weight: 900; font-size: 22px; letter-spacing: -.01em; display: flex; justify-content: space-between; align-items: baseline; border-top: 3px solid #000000; margin-top: 4px">
+        <span>02 Retrieval — rank per variant</span><span style="font-family: 'Space Mono', monospace; font-size: 12px; font-weight: 400">darker = higher score · — = not retrieved</span>
+      </div>
+      <sc-for list="{{docRows}}" as="row" hint-placeholder-count="8">
+        <div role="row" style="display: contents">
+          <div role="rowheader" style="padding: 8px 12px 8px 0; border-top: 1px solid #000000; display: flex; flex-direction: column; justify-content: center; min-height: 52px">
+            <span style="font-weight: 700">{{row.title}}</span>
+            <span style="font-family: 'Space Mono', monospace; font-size: 11.5px; color: #4D4D4D">{{row.path}}</span>
+          </div>
+          <sc-for list="{{row.cells}}" as="c" hint-placeholder-count="3">
+            <div role="gridcell" style="{{c.style}}">
+              <span style="font-size: 30px; font-weight: 900; letter-spacing: -.03em; line-height: 1">{{c.rank}}</span>
+              <span style="font-family: 'Space Mono', monospace; font-size: 12px">{{c.score}}</span>
+            </div>
+          </sc-for>
+        </div>
+      </sc-for>
+
+      <div style="grid-column: 1 / -1; padding: 28px 0 8px; font-weight: 900; font-size: 22px; letter-spacing: -.01em; border-top: 3px solid #000000; margin-top: 4px">03 Output</div>
+      <div role="row" style="display: contents">
+        <div role="rowheader" style="padding: 12px 12px 12px 0; border-top: 1px solid #000000; font-weight: 700">Answer</div>
+        <sc-for list="{{outs}}" as="o" hint-placeholder-count="3">
+          <div role="gridcell" style="padding: 12px; border-top: 1px solid #000000; border-left: 1px solid #000000; font-size: 15px; line-height: 1.55">{{o.answer}}</div>
+        </sc-for>
+      </div>
+      <div role="row" style="display: contents">
+        <div role="rowheader" style="padding: 12px 12px 12px 0; border-top: 1px solid #000000; font-weight: 700">Shared with A</div>
+        <sc-for list="{{outs}}" as="o" hint-placeholder-count="3">
+          <div role="gridcell" style="padding: 12px; border-top: 1px solid #000000; border-left: 1px solid #000000; font-size: 30px; font-weight: 900; letter-spacing: -.03em">{{o.shared}}</div>
+        </sc-for>
+      </div>
+      <div role="row" style="display: contents">
+        <div role="rowheader" style="padding: 12px 12px 12px 0; border-top: 1px solid #000000; border-bottom: 3px solid #000000; font-weight: 700">Latency est.</div>
+        <sc-for list="{{outs}}" as="o" hint-placeholder-count="3">
+          <div role="gridcell" style="padding: 12px; border-top: 1px solid #000000; border-bottom: 3px solid #000000; border-left: 1px solid #000000; font-family: 'Space Mono', monospace; font-size: 18px; font-weight: 700">{{o.latency}}</div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"heat":{"editor":"color","default":"#C41E16","options":["#C41E16","#1F4E79","#000000"]},"$preview":{"width":1440,"height":1500}}'>
+var DOCS = [
+  ['d1','Rotating API keys','security/api-keys.md','security',.92,.8,.95,'rotate rotation api keys key revoke','Create a new key, roll it out alongside the existing one, and revoke the old key only after traffic has switched over'],
+  ['d2','Key management overview','security/overview.md','security',.78,.5,.7,'keys management workspace active api','Each workspace can hold two active keys at the same time, which makes an overlap window possible'],
+  ['d3','Zero-downtime deployments','guides/zero-downtime.md','guides',.66,.6,.62,'downtime deploy rolling restart without','Use a rolling restart so each instance picks up the new key without dropping requests'],
+  ['d4','Changelog: dual-key support','changelog/2026-09.md','changelog',.71,1,.8,'dual key keys rotation outage changelog api','With dual-key support, both keys stay valid during the switch'],
+  ['d5','Troubleshooting 401 errors','guides/errors-401.md','guides',.55,.4,.5,'401 errors revoked key auth','If 401 errors appear afterwards, some service is still sending the revoked key'],
+  ['d6','Service accounts and scopes','security/service-accounts.md','security',.5,.3,.38,'service accounts scopes keys rotate','Giving each service its own key lets you rotate them one at a time'],
+  ['d7','Secrets in CI pipelines','guides/ci-secrets.md','guides',.48,.55,.42,'secrets ci pipelines keys','Update the key in your CI secret store so new builds pick it up'],
+  ['d8','Legacy v1 authentication','security/legacy-v1.md','security',.6,.05,.2,'legacy v1 tokens rotated reissued outage keys api','Legacy v1 tokens cannot be rotated and must be reissued, which causes a brief outage'],
+  ['d9','Webhook signing secrets','security/webhooks.md','security',.4,.45,.25,'webhook signing secrets rotate grace','Webhook signing secrets rotate separately and are not affected'],
+  ['d10','Rate limits','reference/rate-limits.md','reference',.2,.5,.1,'rate limits key quota api','Rate limits apply per key, so the new key starts with its own quota'],
+  ['d11','Audit logs','security/audit-logs.md','security',.35,.6,.3,'audit logs key revocation','Each key creation and revocation shows up in the audit log'],
+  ['d12','SDK configuration','reference/sdk-config.md','reference',.45,.7,.35,'sdk configuration environment key reload','SDKs read the key at startup, so restart clients after updating it']
+].map(function (a) { return { id: a[0], title: a[1], path: a[2], section: a[3], sem: a[4], fresh: a[5], rr: a[6], tags: a[7], fact: a[8] }; });
+var MODELS = { 'claude-opus-5-5': [1500, 3], 'claude-sonnet-5-5': [880, 3], 'claude-haiku-5-5': [410, 2], 'gpt-4o': [940, 3], 'llama-3-70b': [690, 2] };
+var STOP = { how: 1, the: 1, and: 1, for: 1, you: 1, can: 1, what: 1, does: 1, with: 1, from: 1, are: 1, why: 1 };
+function terms(q) { return String(q || '').toLowerCase().split(/[^a-z0-9]+/).filter(function (t) { return t.length > 2 && !STOP[t]; }); }
+function has(text, t) { return text.indexOf(t) >= 0 || (t.length > 4 && t.slice(-1) === 's' && text.indexOf(t.slice(0, -1)) >= 0); }
+function rank(cfg, q) {
+  var ts = terms(q);
+  return DOCS.map(function (d) {
+    var hay = (d.title + ' ' + d.tags).toLowerCase();
+    var lex = ts.length ? ts.filter(function (t) { return has(hay, t); }).length / ts.length : 0;
+    var s = cfg.alpha * (d.sem * .75 + lex * .25) + (1 - cfg.alpha) * lex;
+    s += cfg.recency * d.fresh * .4;
+    if (ts.some(function (t) { return has(d.title.toLowerCase(), t); })) s += cfg.titleBoost * .3;
+    if (cfg.section !== 'none' && d.section === cfg.section) s += .25;
+    if (cfg.rerank) s = s * .6 + d.rr * .4;
+    return { doc: d, score: s };
+  }).sort(function (a, b) { return b.score - a.score; }).slice(0, cfg.topK);
+}
+function answer(cfg, rows) {
+  if (!rows.length) return '';
+  var n = /one or two/.test(cfg.prompt) ? 1 : MODELS[cfg.model][1];
+  return rows.slice(0, n).map(function (r, i) { return r.doc.fact + ' [' + (i + 1) + '].'; }).join(' ') + (cfg.temperature > .6 ? ' Other services may need the same update.' : '');
+}
+var SPEC = [
+  ['model', 'Model', 'generator', 'model'],
+  ['prompt', 'System prompt', 'instructions', 'prompt'],
+  ['temperature', 'Temperature', '0 – 1', 'range', 0, 1, .05],
+  ['topK', 'Top K', 'chunks to model', 'range', 1, 10, 1],
+  ['alpha', 'Hybrid α', 'keyword → semantic', 'range', 0, 1, .05],
+  ['rerank', 'Rerank', 'cross-encoder', 'check'],
+  ['recency', 'Recency boost', 'fresh docs up', 'range', 0, 1, .05],
+  ['titleBoost', 'Title boost', 'term in title', 'range', 0, 1, .05],
+  ['section', 'Section boost', '+0.25 to path', 'section']
+];
+function mk(id, name, d) { return { id: id, name: name, d: d, a: Object.assign({}, d) }; }
+
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    var q = 'How do I rotate API keys without downtime?';
+    this.state = { query: q, ranQuery: q, running: false, vs: [
+      mk('A', 'Baseline', { model: 'claude-sonnet-5-5', temperature: .2, topK: 5, alpha: .5, rerank: false, recency: 0, titleBoost: 0, section: 'none', prompt: 'Answer in one or two sentences using only the context. Cite as [n].' }),
+      mk('B', 'Semantic + rerank', { model: 'claude-sonnet-5-5', temperature: .2, topK: 6, alpha: .8, rerank: true, recency: .2, titleBoost: 0, section: 'none', prompt: 'Give a step-by-step answer grounded in the context. Cite every step as [n].' }),
+      mk('C', 'Keyword + fresh', { model: 'claude-haiku-5-5', temperature: .4, topK: 5, alpha: .2, rerank: false, recency: .9, titleBoost: .5, section: 'changelog', prompt: 'Give a step-by-step answer grounded in the context. Cite every step as [n].' })
+    ] };
+  }
+  componentWillUnmount() { clearTimeout(this.t); }
+  upd(i, p) { this.setState({ vs: this.state.vs.map(function (c, j) { return j === i ? Object.assign({}, c, { d: Object.assign({}, c.d, p) }) : c; }) }); }
+  run() {
+    var self = this; this.setState({ running: true }); clearTimeout(this.t);
+    this.t = setTimeout(function () { self.setState(function (s) { return { running: false, ranQuery: s.query, vs: s.vs.map(function (c) { return Object.assign({}, c, { a: Object.assign({}, c.d) }); }) }; }); }, 450);
+  }
+  renderVals() {
+    var self = this, s = this.state, vs = s.vs, heat = this.props.heat ?? '#C41E16';
+    var ranked = vs.map(function (c) { return rank(c.a, s.ranQuery); });
+    var pos = ranked.map(function (rows) { var m = {}; rows.forEach(function (r, k) { m[r.doc.id] = { k: k, s: r.score }; }); return m; });
+    var base = vs[0].d;
+    var cellBase = 'padding: 10px 12px; border-top: 1px solid #000000; border-left: 1px solid #000000; display: flex; flex-direction: column; justify-content: center; min-width: 0; ';
+    var spec = SPEC.map(function (sp) {
+      var key = sp[0], kind = sp[3];
+      return { label: sp[1], hint: sp[2], cells: vs.map(function (c, i) {
+        var v = c.d[key], diff = i > 0 && JSON.stringify(v) !== JSON.stringify(base[key]);
+        return { vid: 'variant ' + c.id, value: v, aria: sp[1] + ' for variant ' + c.id,
+          isModel: kind === 'model', isPrompt: kind === 'prompt', isSection: kind === 'section', isRange: kind === 'range', isCheck: kind === 'check',
+          min: sp[4], max: sp[5], step: sp[6],
+          shown: kind === 'check' ? (v ? 'On' : 'Off') : (sp[6] === 1 ? String(v) : (typeof v === 'number' ? v.toFixed(2) : '')),
+          style: cellBase + (diff ? 'box-shadow: inset 6px 0 0 ' + heat + '; padding-left: 16px' : ''),
+          set: function (e) { var p = {}; p[key] = kind === 'check' ? e.target.checked : (kind === 'range' ? Number(e.target.value) : e.target.value); self.upd(i, p); } };
+      }) };
+    });
+    var seen = {}, union = [];
+    ranked.forEach(function (rows) { rows.forEach(function (r) { if (!seen[r.doc.id]) { seen[r.doc.id] = 1; union.push(r.doc); } }); });
+    var best = function (d) { return Math.min.apply(null, pos.map(function (m) { return m[d.id] ? m[d.id].k : 99; })); };
+    union.sort(function (a, b) { return best(a) - best(b); });
+    var shades = [['#FFFFFF', '#000000'], [heat + '22', '#000000'], [heat + '55', '#000000'], [heat + 'AA', '#000000'], [heat, '#FFFFFF']];
+    var docRows = union.map(function (d) {
+      return { title: d.title, path: d.path, cells: vs.map(function (c, i) {
+        var p = pos[i][d.id];
+        if (!p) return { rank: '—', score: '', style: cellBase + 'flex-direction: row; align-items: center; justify-content: flex-start; gap: 10px; color: #4D4D4D; background: repeating-linear-gradient(135deg, #FFFFFF 0 6px, #F0F0F0 6px 7px)' };
+        var lvl = Math.max(1, Math.min(4, Math.round(p.s / 1.3 * 4)));
+        return { rank: String(p.k + 1), score: p.s.toFixed(3), style: cellBase + 'flex-direction: row; align-items: center; justify-content: space-between; gap: 10px; background: ' + shades[lvl][0] + '; color: ' + shades[lvl][1] };
+      }) };
+    });
+    var cols = '240px repeat(' + vs.length + ', minmax(220px, 1fr))';
+    return {
+      query: s.query, runLabel: s.running ? 'Running…' : 'Run matrix', cannotAdd: vs.length >= 4,
+      cols: cols, minW: (240 + vs.length * 220) + 'px',
+      heads: vs.map(function (c, i) { return { id: c.id, name: c.name, cannotRemove: vs.length <= 2 || i === 0,
+        status: (JSON.stringify(c.d) !== JSON.stringify(c.a) || s.query !== s.ranQuery) ? '● edited — run' : (i === 0 ? 'baseline' : 'up to date'),
+        remove: function () { self.setState({ vs: self.state.vs.filter(function (x, j) { return j !== i; }) }); } }; }),
+      spec: spec, docRows: docRows,
+      outs: vs.map(function (c, i) {
+        var ids = ranked[0].map(function (r) { return r.doc.id; });
+        var shared = ranked[i].filter(function (r) { return ids.indexOf(r.doc.id) >= 0; }).length;
+        return { answer: answer(c.a, ranked[i]), shared: i === 0 ? '—' : shared + '/' + ranked[i].length, latency: '~' + (MODELS[c.a.model][0] + c.a.topK * 14 + (c.a.rerank ? 160 : 0)) + ' ms' };
+      }),
+      setQuery: function (e) { self.setState({ query: e.target.value }); },
+      queryKey: function (e) { if (e.key === 'Enter') self.run(); },
+      runAll: function () { self.run(); },
+      addCol: function () {
+        var cur = self.state.vs; if (cur.length >= 4) return;
+        var id = ['A', 'B', 'C', 'D'].filter(function (x) { return !cur.some(function (v) { return v.id === x; }); })[0];
+        var src = cur[cur.length - 1];
+        self.setState({ vs: cur.concat([{ id: id, name: 'Variant ' + id, d: Object.assign({}, src.d), a: Object.assign({}, src.d) }]) });
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>

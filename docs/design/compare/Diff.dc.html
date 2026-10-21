@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Config Diff — compare</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&amp;family=Inter:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0;background:#0E1116}
+a{color:#79B8FF}a:hover{color:#B3D6FF}
+input,select,textarea,button{font:inherit;color:inherit}
+button{cursor:pointer}
+input[type=range]{accent-color:#79B8FF;width:120px;margin:0;height:20px;vertical-align:middle}
+select,textarea{background:#0E1116;border:1px solid #2B3340;border-radius:4px;color:#E6C07B}
+:focus-visible{outline:2px solid #79B8FF;outline-offset:1px}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #0E1116; color: #D6DEEB; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 13.5px; line-height: 1.6; display: flex; flex-direction: column">
+
+  <div style="display: flex; align-items: center; gap: 18px; padding: 0 20px; min-height: 44px; background: #151A21; border-bottom: 1px solid #222A35; font-family: 'Inter', sans-serif; font-size: 13px; flex-wrap: wrap">
+    <span style="font-weight: 600">rag-console</span>
+    <span style="color: #8B95A3">/ compare / diff</span>
+    <span style="flex: 1"></span>
+    <span style="color: #8B95A3">{{corpusSize}} chunks · support-docs</span>
+  </div>
+
+  <section aria-label="Command" style="padding: 18px 20px; border-bottom: 1px solid #222A35; display: flex; flex-direction: column; gap: 12px">
+    <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px">
+      <span style="color: #7EE787">$</span>
+      <span>rag compare</span>
+      <span style="color: #8B95A3">--base</span>
+      <div role="group" aria-label="Base variant" style="display: inline-flex; border: 1px solid #2B3340; border-radius: 4px; overflow: hidden">
+        <sc-for list="{{baseTabs}}" as="t" hint-placeholder-count="3">
+          <button type="button" onClick="{{t.pick}}" aria-pressed="{{t.on}}" style="{{t.style}}">{{t.id}}</button>
+        </sc-for>
+      </div>
+      <span style="color: #8B95A3">--head</span>
+      <div role="group" aria-label="Head variant" style="display: inline-flex; border: 1px solid #2B3340; border-radius: 4px; overflow: hidden">
+        <sc-for list="{{headTabs}}" as="t" hint-placeholder-count="3">
+          <button type="button" onClick="{{t.pick}}" aria-pressed="{{t.on}}" style="{{t.style}}">{{t.id}}</button>
+        </sc-for>
+      </div>
+      <span style="color: #8B95A3">--query</span>
+    </div>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap">
+      <label for="df-q" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Query</label>
+      <input id="df-q" type="text" value="{{query}}" onChange="{{setQuery}}" onKeyDown="{{queryKey}}" style="flex: 1 1 480px; min-width: 0; min-height: 44px; padding: 0 14px; border-radius: 4px; border: 1px solid #2B3340; background: #0A0D11; color: #E6C07B; font-size: 16px">
+      <button type="button" onClick="{{runAll}}" style="min-height: 44px; padding: 0 18px; border-radius: 4px; border: 1px solid #7EE787; background: #12261A; color: #7EE787; font-weight: 700">{{runLabel}}</button>
+    </div>
+  </section>
+
+  <div style="display: flex; flex-wrap: wrap; flex: 1">
+    <section aria-label="Configuration diff" style="flex: 1 1 560px; min-width: 0; border-right: 1px solid #222A35">
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-bottom: 1px solid #222A35; font-family: 'Inter', sans-serif; font-size: 12.5px">
+        <div style="padding: 8px 16px; background: #151A21; display: flex; gap: 8px"><span style="color: #FFAB70; font-weight: 600">− base</span><span>{{base.file}}</span></div>
+        <div style="padding: 8px 16px; background: #151A21; border-left: 1px solid #222A35; display: flex; gap: 8px"><span style="color: #79B8FF; font-weight: 600">+ head</span><span>{{head.file}}</span></div>
+      </div>
+      <sc-for list="{{lines}}" as="l" hint-placeholder-count="10">
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr))">
+          <sc-for list="{{l.sides}}" as="c" hint-placeholder-count="2">
+            <div style="{{c.style}}">
+              <span style="width: 26px; flex: none; color: #7D8794; text-align: right">{{l.n}}</span>
+              <span style="width: 12px; flex: none; color: {{c.markColor}}; font-weight: 700">{{c.mark}}</span>
+              <span style="color: #C3A6FF; flex: none">{{l.key}}:</span>
+              <sc-if value="{{c.isModel}}" hint-placeholder-val="{{ false }}">
+                <select aria-label="{{c.aria}}" value="{{c.value}}" onChange="{{c.set}}" style="min-height: 30px; padding: 0 6px; font-size: 13px; max-width: 100%">
+                  <option value="claude-opus-5-5">claude-opus-5-5</option>
+                  <option value="claude-sonnet-5-5">claude-sonnet-5-5</option>
+                  <option value="claude-haiku-5-5">claude-haiku-5-5</option>
+                  <option value="gpt-4o">gpt-4o</option>
+                  <option value="llama-3-70b">llama-3-70b</option>
+                </select>
+              </sc-if>
+              <sc-if value="{{c.isSection}}" hint-placeholder-val="{{ false }}">
+                <select aria-label="{{c.aria}}" value="{{c.value}}" onChange="{{c.set}}" style="min-height: 30px; padding: 0 6px; font-size: 13px">
+                  <option value="none">null</option>
+                  <option value="security">security/</option>
+                  <option value="guides">guides/</option>
+                  <option value="changelog">changelog/</option>
+                  <option value="reference">reference/</option>
+                </select>
+              </sc-if>
+              <sc-if value="{{c.isRange}}" hint-placeholder-val="{{ true }}">
+                <span style="display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap">
+                  <span style="color: #79C0FF; min-width: 36px">{{c.shown}}</span>
+                  <input type="range" aria-label="{{c.aria}}" min="{{c.min}}" max="{{c.max}}" step="{{c.step}}" value="{{c.value}}" onChange="{{c.set}}">
+                </span>
+              </sc-if>
+              <sc-if value="{{c.isBool}}" hint-placeholder-val="{{ false }}">
+                <button type="button" onClick="{{c.toggle}}" aria-pressed="{{c.value}}" aria-label="{{c.aria}}" style="min-height: 30px; padding: 0 10px; border-radius: 4px; border: 1px solid #2B3340; background: #0A0D11; color: #FF7B9C">{{c.shown}}</button>
+              </sc-if>
+              <sc-if value="{{c.isPrompt}}" hint-placeholder-val="{{ false }}">
+                <textarea aria-label="{{c.aria}}" rows="3" value="{{c.value}}" onChange="{{c.set}}" style="flex: 1; min-width: 0; padding: 6px 8px; font-size: 12.5px; line-height: 1.5; resize: vertical"></textarea>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+      </sc-for>
+      <div style="padding: 14px 16px; color: #8B95A3; font-family: 'Inter', sans-serif; font-size: 13px; border-top: 1px solid #222A35">{{changedLabel}}</div>
+    </section>
+
+    <section aria-label="Output diff" style="flex: 1 1 480px; min-width: 0; display: flex; flex-direction: column">
+      <div style="padding: 8px 16px; background: #151A21; border-bottom: 1px solid #222A35; font-family: 'Inter', sans-serif; font-size: 12.5px">results.diff</div>
+      <div style="padding: 8px 0">
+        <sc-for list="{{resLines}}" as="r" hint-placeholder-count="7">
+          <div style="{{r.style}}">
+            <span style="width: 14px; flex: none; font-weight: 700; color: {{r.markColor}}">{{r.mark}}</span>
+            <span style="width: 64px; flex: none; color: #8B95A3">{{r.ranks}}</span>
+            <span style="flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{r.title}}</span>
+            <span style="color: #8B95A3">{{r.score}}</span>
+          </div>
+        </sc-for>
+      </div>
+      <div style="padding: 8px 16px; background: #151A21; border-top: 1px solid #222A35; border-bottom: 1px solid #222A35; font-family: 'Inter', sans-serif; font-size: 12.5px">answer.diff</div>
+      <p style="margin: 0; padding: 16px; font-family: 'Inter', sans-serif; font-size: 15px; line-height: 1.75">
+        <sc-for list="{{words}}" as="w" hint-placeholder-count="30">
+          <span style="{{w.style}}">{{w.text}} </span>
+        </sc-for>
+      </p>
+      <div style="padding: 0 16px 16px; display: flex; gap: 16px; font-family: 'Inter', sans-serif; font-size: 12.5px; color: #8B95A3; flex-wrap: wrap">
+        <span><span style="background: rgba(121,184,255,.18); color: #B3D6FF; padding: 1px 4px; border-bottom: 2px solid #79B8FF">added</span> in head</span>
+        <span><span style="background: rgba(255,171,112,.14); color: #FFC9A3; padding: 1px 4px; text-decoration: line-through">removed</span> from base</span>
+      </div>
+    </section>
+  </div>
+
+  <footer style="display: flex; flex-wrap: wrap; gap: 6px 20px; padding: 6px 20px; background: #1F6FEB; color: #FFFFFF; font-family: 'Inter', sans-serif; font-size: 12.5px">
+    <span>{{base.id}} → {{head.id}}</span>
+    <span>{{changedCount}} params changed</span>
+    <span>overlap {{overlap}}</span>
+    <span>latency {{latencyDelta}}</span>
+    <span style="flex: 1"></span>
+    <span>{{staleLabel}}</span>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"showUnchanged":{"editor":"boolean","default":true},"$preview":{"width":1440,"height":1500}}'>
+var DOCS = [
+  ['d1','Rotating API keys','security/api-keys.md','security',.92,.8,.95,'rotate rotation api keys key revoke','Create a new key, roll it out alongside the existing one, and revoke the old key only after traffic has switched over'],
+  ['d2','Key management overview','security/overview.md','security',.78,.5,.7,'keys management workspace active api','Each workspace can hold two active keys at the same time, which makes an overlap window possible'],
+  ['d3','Zero-downtime deployments','guides/zero-downtime.md','guides',.66,.6,.62,'downtime deploy rolling restart without','Use a rolling restart so each instance picks up the new key without dropping requests'],
+  ['d4','Changelog: dual-key support','changelog/2026-09.md','changelog',.71,1,.8,'dual key keys rotation outage changelog api','With dual-key support, both keys stay valid during the switch'],
+  ['d5','Troubleshooting 401 errors','guides/errors-401.md','guides',.55,.4,.5,'401 errors revoked key auth','If 401 errors appear afterwards, some service is still sending the revoked key'],
+  ['d6','Service accounts and scopes','security/service-accounts.md','security',.5,.3,.38,'service accounts scopes keys rotate','Giving each service its own key lets you rotate them one at a time'],
+  ['d7','Secrets in CI pipelines','guides/ci-secrets.md','guides',.48,.55,.42,'secrets ci pipelines keys','Update the key in your CI secret store so new builds pick it up'],
+  ['d8','Legacy v1 authentication','security/legacy-v1.md','security',.6,.05,.2,'legacy v1 tokens rotated reissued outage keys api','Legacy v1 tokens cannot be rotated and must be reissued, which causes a brief outage'],
+  ['d9','Webhook signing secrets','security/webhooks.md','security',.4,.45,.25,'webhook signing secrets rotate grace','Webhook signing secrets rotate separately and are not affected'],
+  ['d10','Rate limits','reference/rate-limits.md','reference',.2,.5,.1,'rate limits key quota api','Rate limits apply per key, so the new key starts with its own quota'],
+  ['d11','Audit logs','security/audit-logs.md','security',.35,.6,.3,'audit logs key revocation','Each key creation and revocation shows up in the audit log'],
+  ['d12','SDK configuration','reference/sdk-config.md','reference',.45,.7,.35,'sdk configuration environment key reload','SDKs read the key at startup, so restart clients after updating it']
+].map(function (a) { return { id: a[0], title: a[1], path: a[2], section: a[3], sem: a[4], fresh: a[5], rr: a[6], tags: a[7], fact: a[8] }; });
+var MODELS = { 'claude-opus-5-5': [1500, 3], 'claude-sonnet-5-5': [880, 3], 'claude-haiku-5-5': [410, 2], 'gpt-4o': [940, 3], 'llama-3-70b': [690, 2] };
+var STOP = { how: 1, the: 1, and: 1, for: 1, you: 1, can: 1, what: 1, does: 1, with: 1, from: 1, are: 1, why: 1 };
+function terms(q) { return String(q || '').toLowerCase().split(/[^a-z0-9]+/).filter(function (t) { return t.length > 2 && !STOP[t]; }); }
+function has(text, t) { return text.indexOf(t) >= 0 || (t.length > 4 && t.slice(-1) === 's' && text.indexOf(t.slice(0, -1)) >= 0); }
+function rank(cfg, q) {
+  var ts = terms(q);
+  return DOCS.map(function (d) {
+    var hay = (d.title + ' ' + d.tags).toLowerCase();
+    var lex = ts.length ? ts.filter(function (t) { return has(hay, t); }).length / ts.length : 0;
+    var s = cfg.alpha * (d.sem * .75 + lex * .25) + (1 - cfg.alpha) * lex;
+    s += cfg.recency * d.fresh * .4;
+    if (ts.some(function (t) { return has(d.title.toLowerCase(), t); })) s += cfg.titleBoost * .3;
+    if (cfg.section !== 'none' && d.section === cfg.section) s += .25;
+    if (cfg.rerank) s = s * .6 + d.rr * .4;
+    return { doc: d, score: s };
+  }).sort(function (a, b) { return b.score - a.score; }).slice(0, cfg.topK);
+}
+function answer(cfg, rows) {
+  if (!rows.length) return '';
+  var n = /one or two/.test(cfg.prompt) ? 1 : MODELS[cfg.model][1];
+  return rows.slice(0, n).map(function (r, i) { return r.doc.fact + ' [' + (i + 1) + '].'; }).join(' ') + (cfg.temperature > .6 ? ' Other services may need the same update.' : '');
+}
+function wordDiff(a, b) {
+  var A = a.split(/\s+/).filter(Boolean), B = b.split(/\s+/).filter(Boolean), n = A.length, m = B.length, i, j;
+  var L = []; for (i = 0; i <= n; i++) { L.push(new Array(m + 1).fill(0)); }
+  for (i = n - 1; i >= 0; i--) for (j = m - 1; j >= 0; j--) L[i][j] = A[i] === B[j] ? L[i + 1][j + 1] + 1 : Math.max(L[i + 1][j], L[i][j + 1]);
+  var out = []; i = 0; j = 0;
+  while (i < n && j < m) { if (A[i] === B[j]) { out.push([0, A[i]]); i++; j++; } else if (L[i + 1][j] >= L[i][j + 1]) { out.push([-1, A[i++]]); } else { out.push([1, B[j++]]); } }
+  while (i < n) out.push([-1, A[i++]]); while (j < m) out.push([1, B[j++]]);
+  return out;
+}
+var KEYS = [
+  ['model', 'model'], ['prompt', 'prompt'], ['temperature', 'range', 0, 1, .05], ['topK', 'range', 1, 10, 1], ['alpha', 'range', 0, 1, .05],
+  ['rerank', 'bool'], ['recency', 'range', 0, 1, .05], ['titleBoost', 'range', 0, 1, .05], ['section', 'section']
+];
+var NAMES = { topK: 'top_k', titleBoost: 'title_boost', alpha: 'hybrid_alpha', recency: 'recency_boost', section: 'section_boost' };
+function mk(id, file, d) { return { id: id, file: file, d: d, a: Object.assign({}, d) }; }
+
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    var q = 'How do I rotate API keys without downtime?';
+    this.state = { query: q, ranQuery: q, running: false, base: 0, head: 1, vs: [
+      mk('A', 'baseline.yaml', { model: 'claude-sonnet-5-5', prompt: 'Answer in one or two sentences using only the context. Cite as [n].', temperature: .2, topK: 5, alpha: .5, rerank: false, recency: 0, titleBoost: 0, section: 'none' }),
+      mk('B', 'hybrid-rerank.yaml', { model: 'claude-sonnet-5-5', prompt: 'Give a step-by-step answer grounded in the context. Cite every step as [n].', temperature: .2, topK: 5, alpha: .7, rerank: true, recency: .3, titleBoost: .2, section: 'none' }),
+      mk('C', 'fast-fresh.yaml', { model: 'claude-haiku-5-5', prompt: 'Give a step-by-step answer grounded in the context. Cite every step as [n].', temperature: .7, topK: 3, alpha: .4, rerank: false, recency: .8, titleBoost: .4, section: 'changelog' })
+    ] };
+  }
+  componentWillUnmount() { clearTimeout(this.t); }
+  upd(i, p) { this.setState({ vs: this.state.vs.map(function (c, j) { return j === i ? Object.assign({}, c, { d: Object.assign({}, c.d, p) }) : c; }) }); }
+  run() {
+    var self = this; this.setState({ running: true }); clearTimeout(this.t);
+    this.t = setTimeout(function () { self.setState(function (s) { return { running: false, ranQuery: s.query, vs: s.vs.map(function (c) { return Object.assign({}, c, { a: Object.assign({}, c.d) }); }) }; }); }, 400);
+  }
+  renderVals() {
+    var self = this, s = this.state, showSame = this.props.showUnchanged ?? true;
+    var bi = s.base, hi = s.head, B = s.vs[bi], H = s.vs[hi];
+    var tab = function (i, on, setKey, color) { return { id: s.vs[i].id, on: on, style: 'min-width: 40px; min-height: 32px; border: 0; background: ' + (on ? color : 'transparent') + '; color: ' + (on ? '#0E1116' : '#D6DEEB') + '; font-weight: 700', pick: function () { var p = {}; p[setKey] = i; if (setKey === 'base' && i === s.head) p.head = s.base; if (setKey === 'head' && i === s.base) p.base = s.head; self.setState(p); } }; };
+    var changed = 0, lines = [];
+    KEYS.forEach(function (k, n) {
+      var key = k[0], kind = k[1], diff = JSON.stringify(B.d[key]) !== JSON.stringify(H.d[key]);
+      if (diff) changed++;
+      if (!diff && !showSame) return;
+      var side = function (vi, which) {
+        var v = s.vs[vi].d[key], bg = !diff ? 'transparent' : (which === 'base' ? 'rgba(255,171,112,.10)' : 'rgba(121,184,255,.10)');
+        return { mark: diff ? (which === 'base' ? '−' : '+') : '', markColor: which === 'base' ? '#FFAB70' : '#79B8FF', value: v,
+          aria: (NAMES[key] || key) + ' in ' + s.vs[vi].id,
+          isModel: kind === 'model', isPrompt: kind === 'prompt', isSection: kind === 'section', isRange: kind === 'range', isBool: kind === 'bool',
+          min: k[2], max: k[3], step: k[4], shown: kind === 'bool' ? String(v) : (k[4] === 1 ? String(v) : (typeof v === 'number' ? v.toFixed(2) : '')),
+          style: 'display: flex; align-items: ' + (kind === 'prompt' ? 'flex-start' : 'center') + '; gap: 8px; padding: 6px 16px 6px 8px; min-height: 40px; background: ' + bg + '; ' + (which === 'head' ? 'border-left: 1px solid #222A35' : ''),
+          set: function (e) { var p = {}; p[key] = kind === 'range' ? Number(e.target.value) : e.target.value; self.upd(vi, p); },
+          toggle: function () { var p = {}; p[key] = !v; self.upd(vi, p); } };
+      };
+      lines.push({ n: n + 1, key: NAMES[key] || key, sides: [side(bi, 'base'), side(hi, 'head')] });
+    });
+    var rb = rank(B.a, s.ranQuery), rh = rank(H.a, s.ranQuery);
+    var pb = {}; rb.forEach(function (r, k) { pb[r.doc.id] = k; });
+    var ph = {}; rh.forEach(function (r, k) { ph[r.doc.id] = k; });
+    var line = function (mark, color, bg, ranks, title, score) { return { mark: mark, markColor: color, ranks: ranks, title: title, score: score, style: 'display: flex; gap: 10px; align-items: center; padding: 4px 16px; min-height: 30px; background: ' + bg }; };
+    var resLines = rh.map(function (r, k) {
+      var p = pb[r.doc.id];
+      if (p == null) return line('+', '#79B8FF', 'rgba(121,184,255,.10)', '   → ' + (k + 1), r.doc.title, r.score.toFixed(3));
+      if (p === k) return line(' ', '#8B95A3', 'transparent', (p + 1) + ' = ' + (k + 1), r.doc.title, r.score.toFixed(3));
+      return line('~', '#E6C07B', 'rgba(230,192,123,.08)', (p + 1) + ' → ' + (k + 1), r.doc.title, r.score.toFixed(3));
+    }).concat(rb.filter(function (r) { return ph[r.doc.id] == null; }).map(function (r) {
+      return line('−', '#FFAB70', 'rgba(255,171,112,.10)', (pb[r.doc.id] + 1) + ' →   ', r.doc.title, r.score.toFixed(3));
+    }));
+    var words = wordDiff(answer(B.a, rb), answer(H.a, rh)).map(function (w) {
+      return { text: w[1], style: w[0] === 0 ? 'color: #D6DEEB' : (w[0] > 0 ? 'background: rgba(121,184,255,.18); color: #B3D6FF; border-bottom: 2px solid #79B8FF' : 'background: rgba(255,171,112,.14); color: #FFC9A3; text-decoration: line-through') };
+    });
+    var shared = rh.filter(function (r) { return pb[r.doc.id] != null; }).length;
+    var lat = function (c) { return MODELS[c.model][0] + c.topK * 14 + (c.rerank ? 160 : 0); };
+    var dl = lat(H.a) - lat(B.a);
+    var stale = s.query !== s.ranQuery || JSON.stringify(B.d) !== JSON.stringify(B.a) || JSON.stringify(H.d) !== JSON.stringify(H.a);
+    return {
+      query: s.query, corpusSize: DOCS.length, runLabel: s.running ? 'running…' : '⏎ run',
+      baseTabs: s.vs.map(function (v, i) { return tab(i, i === bi, 'base', '#FFAB70'); }),
+      headTabs: s.vs.map(function (v, i) { return tab(i, i === hi, 'head', '#79B8FF'); }),
+      base: { id: B.id, file: B.file }, head: { id: H.id, file: H.file },
+      lines: lines, changedCount: changed, changedLabel: changed + ' of ' + KEYS.length + ' keys differ' + (showSame ? '' : ' · unchanged keys hidden'),
+      resLines: resLines, words: words,
+      overlap: shared + '/' + rh.length, latencyDelta: (dl >= 0 ? '+' : '') + dl + ' ms',
+      staleLabel: stale ? '● unsaved edits — run to refresh' : '✓ up to date',
+      setQuery: function (e) { self.setState({ query: e.target.value }); },
+      queryKey: function (e) { if (e.key === 'Enter') self.run(); },
+      runAll: function () { self.run(); }
+    };
+  }
+}
+</script>
+</body>
+</html>

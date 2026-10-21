@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Signal Desk — compare</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@500;600;700&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0;background:#141310}
+a{color:#FFB547}a:hover{color:#FFD08A}
+input,select,textarea,button{font:inherit;color:inherit}
+button{cursor:pointer}
+.fader{writing-mode:vertical-lr;direction:rtl;width:32px;height:170px;margin:0;accent-color:#E8E1D2}
+:focus-visible{outline:2px solid #5CC8E0;outline-offset:2px}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #141310; color: #E8E1D2; font-family: 'Archivo Narrow', 'Arial Narrow', sans-serif; padding: 28px 32px 48px; box-sizing: border-box; display: flex; flex-direction: column; gap: 22px">
+
+  <header style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px 24px">
+    <div style="display: flex; flex-direction: column">
+      <span style="font-size: 13px; letter-spacing: .3em; color: #A39B8B">RAG CONSOLE · COMPARE</span>
+      <span style="font-size: 34px; font-weight: 700; letter-spacing: .02em">SIGNAL DESK</span>
+    </div>
+    <div style="flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 6px">
+      <label for="sd-q" style="font-size: 12px; letter-spacing: .2em; color: #A39B8B">INPUT · QUERY</label>
+      <input id="sd-q" type="text" value="{{query}}" onChange="{{setQuery}}" onKeyDown="{{queryKey}}" style="min-height: 52px; padding: 0 16px; border-radius: 4px; border: 1px solid #3A362D; background: #0B0B09; color: #FFB547; font-family: 'IBM Plex Mono', monospace; font-size: 17px; box-shadow: inset 0 0 18px rgba(255,181,71,.08)">
+    </div>
+    <button type="button" onClick="{{runAll}}" style="min-height: 64px; min-width: 150px; padding: 0 22px; border-radius: 6px; border: 2px solid #FFB547; background: {{runBg}}; color: {{runFg}}; font-weight: 700; font-size: 18px; letter-spacing: .14em">{{runLabel}}</button>
+  </header>
+
+  <div style="display: flex; flex-wrap: wrap; gap: 22px; align-items: flex-start">
+
+    <section aria-label="Channel strips" style="flex: 0 1 auto; max-width: 100%; display: flex; gap: 10px; padding: 14px; border-radius: 10px; background: #1E1C18; border: 1px solid #2F2C25; overflow-x: auto">
+      <sc-for list="{{chans}}" as="c" hint-placeholder-count="3">
+        <div style="width: 228px; flex: none; display: flex; flex-direction: column; gap: 12px; padding: 12px; border-radius: 8px; background: #26241F; border: 1px solid #36322A">
+          <div style="background: #0B0B09; border-radius: 4px; padding: 8px 10px; display: flex; align-items: center; gap: 10px; border: 1px solid #36322A">
+            <span style="font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: 22px; color: {{c.color}}">{{c.id}}</span>
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: {{c.color}}; text-transform: uppercase; letter-spacing: .06em">{{c.name}}</span>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <label for="{{c.id}}-sd-model" style="font-size: 11.5px; letter-spacing: .18em; color: #A39B8B">MODEL</label>
+            <select id="{{c.id}}-sd-model" value="{{c.d.model}}" onChange="{{c.setModel}}" style="min-height: 38px; padding: 0 8px; border-radius: 4px; border: 1px solid #3A362D; background: #0B0B09; color: #E8E1D2; font-family: 'IBM Plex Mono', monospace; font-size: 12.5px">
+              <option value="claude-opus-5-5">Opus 5.5</option>
+              <option value="claude-sonnet-5-5">Sonnet 5.5</option>
+              <option value="claude-haiku-5-5">Haiku 5.5</option>
+              <option value="gpt-4o">GPT-4o</option>
+              <option value="llama-3-70b">Llama 3 70B</option>
+            </select>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <span style="font-size: 11.5px; letter-spacing: .18em; color: #A39B8B">PROMPT PRESET</span>
+            <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px">
+              <sc-for list="{{c.presets}}" as="p" hint-placeholder-count="3">
+                <button type="button" onClick="{{p.pick}}" aria-pressed="{{p.on}}" style="{{p.style}}">{{p.label}}</button>
+              </sc-for>
+            </div>
+            <label for="{{c.id}}-sd-prompt" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">System prompt for channel {{c.id}}</label>
+            <textarea id="{{c.id}}-sd-prompt" rows="3" value="{{c.d.prompt}}" onChange="{{c.setPrompt}}" style="margin-top: 4px; padding: 6px 8px; border-radius: 4px; border: 1px solid #3A362D; background: #0B0B09; color: #CFC6B4; font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; line-height: 1.45; resize: vertical"></textarea>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; padding: 10px 2px 4px; border-top: 1px solid #36322A">
+            <sc-for list="{{c.faders}}" as="f" hint-placeholder-count="5">
+              <div style="display: flex; flex-direction: column; align-items: center; gap: 6px">
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; color: {{f.color}}">{{f.val}}</span>
+                <input class="fader" id="{{f.id}}" type="range" min="{{f.min}}" max="{{f.max}}" step="{{f.step}}" value="{{f.raw}}" onChange="{{f.set}}" aria-label="{{f.aria}}">
+                <span style="font-size: 12px; font-weight: 600; letter-spacing: .1em; color: #CFC6B4">{{f.label}}</span>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <label for="{{c.id}}-sd-sec" style="font-size: 11.5px; letter-spacing: .18em; color: #A39B8B">SECTION BOOST</label>
+            <select id="{{c.id}}-sd-sec" value="{{c.d.section}}" onChange="{{c.setSection}}" style="min-height: 38px; padding: 0 8px; border-radius: 4px; border: 1px solid #3A362D; background: #0B0B09; color: #E8E1D2; font-family: 'IBM Plex Mono', monospace; font-size: 12.5px">
+              <option value="none">— off —</option>
+              <option value="security">security/</option>
+              <option value="guides">guides/</option>
+              <option value="changelog">changelog/</option>
+              <option value="reference">reference/</option>
+            </select>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px">
+            <button type="button" onClick="{{c.toggleRerank}}" aria-pressed="{{c.d.rerank}}" style="{{c.rerankStyle}}">RERANK</button>
+            <button type="button" onClick="{{c.toggleSolo}}" aria-pressed="{{c.solo}}" style="{{c.soloStyle}}">SOLO</button>
+          </div>
+
+          <div style="display: flex; align-items: flex-end; gap: 10px; padding-top: 8px; border-top: 1px solid #36322A">
+            <div role="img" aria-label="Top score {{c.topScore}}" style="display: flex; flex-direction: column-reverse; gap: 3px">
+              <sc-for list="{{c.leds}}" as="l" hint-placeholder-count="12">
+                <span style="{{l.style}}"></span>
+              </sc-for>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 6px; flex: 1">
+              <span style="font-size: 11.5px; letter-spacing: .18em; color: #A39B8B">TOP SCORE</span>
+              <span style="font-family: 'IBM Plex Mono', monospace; font-size: 24px; color: {{c.color}}">{{c.topScore}}</span>
+              <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #CFC6B4">{{c.latency}}</span>
+              <sc-if value="{{c.stale}}" hint-placeholder-val="{{ false }}">
+                <span style="font-size: 12px; font-weight: 700; letter-spacing: .12em; color: #FFB547">● NOT RUN</span>
+              </sc-if>
+            </div>
+          </div>
+        </div>
+      </sc-for>
+    </section>
+
+    <section aria-label="Output bus" style="flex: 999 1 480px; min-width: 0; display: flex; flex-direction: column; gap: 14px">
+      <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap">
+        <h2 style="margin: 0; font-size: 22px; font-weight: 700; letter-spacing: .14em">OUTPUT BUS</h2>
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; color: #A39B8B">{{busLabel}}</span>
+      </div>
+      <sc-for list="{{outs}}" as="o" hint-placeholder-count="3">
+        <article style="border-radius: 8px; background: #1E1C18; border: 1px solid #2F2C25; border-left: 4px solid {{o.color}}; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px">
+          <div style="display: flex; align-items: center; gap: 10px">
+            <span style="font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: 18px; color: {{o.color}}">{{o.id}}</span>
+            <span style="font-weight: 600; font-size: 16px; letter-spacing: .06em">{{o.name}}</span>
+            <span style="flex: 1"></span>
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #A39B8B">{{o.summary}}</span>
+          </div>
+          <p style="margin: 0; font-family: 'IBM Plex Mono', monospace; font-size: 13.5px; line-height: 1.6; color: #E8E1D2">{{o.answer}}</p>
+          <ol style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px">
+            <sc-for list="{{o.rows}}" as="r" hint-placeholder-count="5">
+              <li style="display: grid; grid-template-columns: 28px minmax(0, 1fr) 120px 56px 52px; align-items: center; gap: 10px; min-height: 32px; padding: 0 6px; border-radius: 4px; background: #23211C">
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; color: #A39B8B">{{r.rank}}</span>
+                <span style="font-size: 14.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{r.title}}</span>
+                <span style="height: 6px; border-radius: 3px; background: #33302A; overflow: hidden"><span style="display: block; height: 100%; width: {{r.pct}}; background: {{o.color}}"></span></span>
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; text-align: right">{{r.score}}</span>
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 600; text-align: right; color: {{r.moveColor}}">{{r.move}}</span>
+              </li>
+            </sc-for>
+          </ol>
+        </article>
+      </sc-for>
+    </section>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"ledCount":{"editor":"int","default":12,"min":6,"max":20},"$preview":{"width":1440,"height":1500}}'>
+var DOCS = [
+  ['d1','Rotating API keys','security/api-keys.md','security',.92,.8,.95,410,'rotate rotation api keys key revoke','Create a new key, roll it out alongside the existing one, and revoke the old key only after traffic has switched over'],
+  ['d2','Key management overview','security/overview.md','security',.78,.5,.7,380,'keys management workspace active api','Each workspace can hold two active keys at the same time, which makes an overlap window possible'],
+  ['d3','Zero-downtime deployments','guides/zero-downtime.md','guides',.66,.6,.62,450,'downtime deploy rolling restart without','Use a rolling restart so each instance picks up the new key without dropping requests'],
+  ['d4','Changelog: dual-key support','changelog/2026-09.md','changelog',.71,1,.8,220,'dual key keys rotation outage changelog api','With dual-key support, both keys stay valid during the switch'],
+  ['d5','Troubleshooting 401 errors','guides/errors-401.md','guides',.55,.4,.5,340,'401 errors revoked key auth','If 401 errors appear afterwards, some service is still sending the revoked key'],
+  ['d6','Service accounts and scopes','security/service-accounts.md','security',.5,.3,.38,400,'service accounts scopes keys rotate','Giving each service its own key lets you rotate them one at a time'],
+  ['d7','Secrets in CI pipelines','guides/ci-secrets.md','guides',.48,.55,.42,310,'secrets ci pipelines keys','Update the key in your CI secret store so new builds pick it up'],
+  ['d8','Legacy v1 authentication','security/legacy-v1.md','security',.6,.05,.2,360,'legacy v1 tokens rotated reissued outage keys api','Legacy v1 tokens cannot be rotated and must be reissued, which causes a brief outage'],
+  ['d9','Webhook signing secrets','security/webhooks.md','security',.4,.45,.25,290,'webhook signing secrets rotate grace','Webhook signing secrets rotate separately and are not affected'],
+  ['d10','Rate limits','reference/rate-limits.md','reference',.2,.5,.1,260,'rate limits key quota api','Rate limits apply per key, so the new key starts with its own quota'],
+  ['d11','Audit logs','security/audit-logs.md','security',.35,.6,.3,240,'audit logs key revocation','Each key creation and revocation shows up in the audit log'],
+  ['d12','SDK configuration','reference/sdk-config.md','reference',.45,.7,.35,300,'sdk configuration environment key reload','SDKs read the key at startup, so restart clients after updating it']
+].map(function (a) { return { id: a[0], title: a[1], path: a[2], section: a[3], sem: a[4], fresh: a[5], rr: a[6], tokens: a[7], tags: a[8], fact: a[9] }; });
+var MODELS = { 'claude-opus-5-5': ['Opus 5.5', 1500, 3], 'claude-sonnet-5-5': ['Sonnet 5.5', 880, 3], 'claude-haiku-5-5': ['Haiku 5.5', 410, 2], 'gpt-4o': ['GPT-4o', 940, 3], 'llama-3-70b': ['Llama 3 70B', 690, 2] };
+var PROMPTS = {
+  concise: 'Answer in one or two sentences using only the context. Cite as [n].',
+  detailed: 'Give a step-by-step answer grounded in the context. Cite every step as [n].',
+  strict: 'Answer only if the context directly supports it. If support is weak, say so.'
+};
+var STOP = { how: 1, the: 1, and: 1, for: 1, you: 1, can: 1, what: 1, does: 1, with: 1, from: 1, are: 1, why: 1 };
+function terms(q) { return String(q || '').toLowerCase().split(/[^a-z0-9]+/).filter(function (t) { return t.length > 2 && !STOP[t]; }); }
+function has(text, t) { return text.indexOf(t) >= 0 || (t.length > 4 && t.slice(-1) === 's' && text.indexOf(t.slice(0, -1)) >= 0); }
+function rank(cfg, q) {
+  var ts = terms(q);
+  return DOCS.map(function (d) {
+    var hay = (d.title + ' ' + d.tags).toLowerCase();
+    var lex = ts.length ? ts.filter(function (t) { return has(hay, t); }).length / ts.length : 0;
+    var s = cfg.alpha * (d.sem * .75 + lex * .25) + (1 - cfg.alpha) * lex;
+    s += cfg.recency * d.fresh * .4;
+    if (ts.some(function (t) { return has(d.title.toLowerCase(), t); })) s += cfg.titleBoost * .3;
+    if (cfg.section !== 'none' && d.section === cfg.section) s += .25;
+    if (cfg.rerank) s = s * .6 + d.rr * .4;
+    return { doc: d, score: s };
+  }).sort(function (a, b) { return b.score - a.score; }).slice(0, cfg.topK);
+}
+function answer(cfg, rows) {
+  if (!rows.length) return '';
+  if (cfg.preset === 'strict' && rows[0].score < .5) return 'The retrieved context does not support a confident answer.';
+  var n = cfg.preset === 'concise' ? 1 : MODELS[cfg.model][2];
+  return rows.slice(0, n).map(function (r, i) { return r.doc.fact + ' [' + (i + 1) + '].'; }).join(' ') + (cfg.temperature > .6 ? ' Other services may need the same update.' : '');
+}
+var COLORS = { A: '#FFB547', B: '#5CC8E0', C: '#A8D46F' };
+function mk(id, name, d) { d.prompt = PROMPTS[d.preset]; return { id: id, name: name, d: d, a: Object.assign({}, d) }; }
+
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    var q = 'How do I rotate API keys without downtime?';
+    this.state = { query: q, ranQuery: q, running: false, solo: null, chans: [
+      mk('A', 'Baseline', { model: 'claude-sonnet-5-5', temperature: .2, preset: 'concise', topK: 5, alpha: .5, rerank: false, recency: 0, titleBoost: 0, section: 'none' }),
+      mk('B', 'Hybrid', { model: 'claude-sonnet-5-5', temperature: .2, preset: 'detailed', topK: 5, alpha: .7, rerank: true, recency: .3, titleBoost: .2, section: 'none' }),
+      mk('C', 'Fresh', { model: 'claude-haiku-5-5', temperature: .5, preset: 'strict', topK: 3, alpha: .4, rerank: false, recency: .8, titleBoost: .4, section: 'changelog' })
+    ] };
+  }
+  componentWillUnmount() { clearTimeout(this.t); }
+  upd(i, p) { this.setState({ chans: this.state.chans.map(function (c, j) { return j === i ? Object.assign({}, c, { d: Object.assign({}, c.d, p) }) : c; }) }); }
+  run() {
+    var self = this; this.setState({ running: true }); clearTimeout(this.t);
+    this.t = setTimeout(function () { self.setState(function (s) { return { running: false, ranQuery: s.query, chans: s.chans.map(function (c) { return Object.assign({}, c, { a: Object.assign({}, c.d) }); }) }; }); }, 500);
+  }
+  renderVals() {
+    var self = this, s = this.state, nLed = this.props.ledCount ?? 12;
+    var ranked = s.chans.map(function (c) { return rank(c.a, s.ranQuery); });
+    var base = {}; ranked[0].forEach(function (r, i) { base[r.doc.id] = i; });
+    var btn = function (on, color) { return 'min-height: 40px; border-radius: 4px; font-family: inherit; font-weight: 700; font-size: 13px; letter-spacing: .12em; border: 1px solid ' + (on ? color : '#4A453A') + '; background: ' + (on ? color : '#1A1915') + '; color: ' + (on ? '#141310' : '#CFC6B4') + '; box-shadow: ' + (on ? '0 0 14px ' + color + '66' : 'none'); };
+    var chans = s.chans.map(function (c, i) {
+      var color = COLORS[c.id], d = c.d, rows = ranked[i];
+      var top = rows[0] ? rows[0].score : 0, lit = Math.round(Math.min(1, top / 1.4) * nLed);
+      var leds = []; for (var k = 0; k < nLed; k++) { var on = k < lit; var hot = k >= nLed - 2; leds.push({ style: 'display: block; width: 22px; height: 8px; border-radius: 2px; background: ' + (on ? (hot ? '#FF6B4A' : color) : '#34302A') + '; box-shadow: ' + (on ? '0 0 6px ' + color + '88' : 'none') }); }
+      var fd = function (key, label, min, max, step, fmt, aria) { return { id: c.id + '-sd-' + key, key: key, label: label, min: min, max: max, step: step, raw: d[key], val: fmt(d[key]), color: color, aria: aria + ' for channel ' + c.id, set: function (e) { var p = {}; p[key] = Number(e.target.value); self.upd(i, p); } }; };
+      var two = function (x) { return x.toFixed(2); };
+      return {
+        id: c.id, name: c.name, color: color, d: d, solo: s.solo === i,
+        stale: JSON.stringify(c.d) !== JSON.stringify(c.a) || s.query !== s.ranQuery,
+        presets: [['concise', 'CON'], ['detailed', 'DET'], ['strict', 'STR']].map(function (p) { var on = d.preset === p[0]; return { label: p[1], on: on, style: btn(on, color), pick: function () { self.upd(i, { preset: p[0], prompt: PROMPTS[p[0]] }); } }; }),
+        faders: [fd('topK', 'K', 1, 10, 1, String, 'Top K'), fd('alpha', 'α', 0, 1, .05, two, 'Hybrid weight'), fd('recency', 'REC', 0, 1, .05, two, 'Recency boost'), fd('titleBoost', 'TTL', 0, 1, .05, two, 'Title boost'), fd('temperature', 'TMP', 0, 1, .05, two, 'Temperature')],
+        leds: leds, topScore: top.toFixed(3), latency: '~' + (MODELS[c.a.model][1] + c.a.topK * 14 + (c.a.rerank ? 160 : 0)) + ' ms',
+        rerankStyle: btn(d.rerank, color), soloStyle: btn(s.solo === i, '#E8E1D2'),
+        setModel: function (e) { self.upd(i, { model: e.target.value }); },
+        setSection: function (e) { self.upd(i, { section: e.target.value }); },
+        setPrompt: function (e) { self.upd(i, { prompt: e.target.value }); },
+        toggleRerank: function () { self.upd(i, { rerank: !d.rerank }); },
+        toggleSolo: function () { self.setState({ solo: s.solo === i ? null : i }); }
+      };
+    });
+    var outs = s.chans.map(function (c, i) {
+      var color = COLORS[c.id];
+      return { id: c.id, name: c.name, color: color, answer: answer(c.a, ranked[i]),
+        summary: MODELS[c.a.model][0] + ' · k=' + c.a.topK + ' · α ' + c.a.alpha.toFixed(2),
+        rows: ranked[i].map(function (r, k) {
+          var p = base[r.doc.id], move = '', mc = '#A39B8B';
+          if (i > 0) { if (p == null) { move = 'NEW'; mc = '#E8E1D2'; } else if (p > k) { move = '▲' + (p - k); mc = '#5CC8E0'; } else if (p < k) { move = '▼' + (k - p); mc = '#FFB547'; } else move = '—'; }
+          return { rank: String(k + 1).padStart(2, '0'), title: r.doc.title, score: r.score.toFixed(3), pct: Math.min(100, Math.round(r.score / 1.4 * 100)) + '%', move: move, moveColor: mc };
+        }) };
+    }).filter(function (o, i) { return s.solo == null || s.solo === i; });
+    return {
+      query: s.query, chans: chans, outs: outs,
+      busLabel: s.solo == null ? 'ALL CHANNELS · moves vs A' : 'SOLO · CH ' + s.chans[s.solo].id,
+      runLabel: s.running ? 'RUNNING' : 'RUN ALL', runBg: s.running ? '#FFB547' : '#1A1915', runFg: s.running ? '#141310' : '#FFB547',
+      setQuery: function (e) { self.setState({ query: e.target.value }); },
+      queryKey: function (e) { if (e.key === 'Enter') self.run(); },
+      runAll: function () { self.run(); }
+    };
+  }
+}
+</script>
+</body>
+</html>

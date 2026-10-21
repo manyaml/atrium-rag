@@ -1,0 +1,95 @@
+{
+  "v": 3,
+  "attachments": {},
+  "boards": {
+    "Artboard-4dtf.dc.html": {
+      "h": 600,
+      "title": "Artboard 1",
+      "w": 800,
+      "x": 0,
+      "y": 0
+    },
+    "Main.dc.html": {
+      "expand": "fill",
+      "h": 1960,
+      "is_interactive": true,
+      "title": "Compare — inference params",
+      "w": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "Console.dc.html": {
+      "expand": "fill",
+      "h": 1500,
+      "is_interactive": true,
+      "title": "1 · Signal Desk",
+      "w": 1440,
+      "x": 0,
+      "y": 2420
+    },
+    "River.dc.html": {
+      "expand": "fill",
+      "h": 1500,
+      "is_interactive": true,
+      "title": "2 · Rank River",
+      "w": 1440,
+      "x": 1520,
+      "y": 2420
+    },
+    "Matrix.dc.html": {
+      "expand": "fill",
+      "h": 1500,
+      "is_interactive": true,
+      "title": "3 · Heat Matrix",
+      "w": 1440,
+      "x": 3040,
+      "y": 2420
+    },
+    "Diff.dc.html": {
+      "expand": "fill",
+      "h": 1500,
+      "is_interactive": true,
+      "title": "4 · Config Diff",
+      "w": 1440,
+      "x": 4560,
+      "y": 2420
+    },
+    "Arena.dc.html": {
+      "expand": "fill",
+      "h": 1500,
+      "is_interactive": true,
+      "title": "5 · Blind Arena",
+      "w": 1440,
+      "x": 6080,
+      "y": 2420
+    }
+  },
+  "createdOnFiles": {
+    "at": "2026-10-20T12:00:00Z",
+    "v": 1
+  },
+  "designSystems": [],
+  "launch": {
+    "view": "canvas"
+  },
+  "notes": {
+    "explorations": {
+      "x": 0,
+      "y": 2140,
+      "text": "Compare — five explorations",
+      "kind": "title1",
+      "maxW": 7520
+    }
+  },
+  "order": [
+    "Artboard-4dtf.dc.html",
+    "Main.dc.html",
+    "Console.dc.html",
+    "River.dc.html",
+    "Matrix.dc.html",
+    "Diff.dc.html",
+    "Arena.dc.html"
+  ],
+  "pages": [],
+  "title": "RAG Compare Screen"
+}

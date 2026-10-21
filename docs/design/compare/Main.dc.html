@@ -1,0 +1,634 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Compare — inference params</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&amp;family=Libre+Caslon+Text:ital,wght@0,400;1,400&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap">
+<style>
+body{margin:0;background:#F5F2EB}
+a{color:#A15735}a:hover{color:#7E4127}
+input,select,textarea,button{font:inherit;color:inherit}
+input[type=range]{accent-color:#A15735;width:100%;margin:0;height:24px}
+input[type=checkbox]{accent-color:#A15735;width:18px;height:18px;margin:0}
+select,textarea,input[type=text]{background:#FFFFFF;border:1px solid #CFC8B6;border-radius:6px}
+button{cursor:pointer}
+button:disabled{cursor:not-allowed;opacity:.45}
+:focus-visible{outline:2px solid #3D5A80;outline-offset:2px}
+</style>
+</helmet>
+<div style="min-height: 100vh; display: flex; flex-wrap: wrap; background: #F5F2EB; color: #1A1915; font-family: 'Inter Tight', system-ui, sans-serif; font-size: 14px; line-height: 1.45">
+
+  <nav aria-label="Workspace" style="flex: 1 1 220px; max-width: 100%; box-sizing: border-box; padding: 20px 14px; border-right: 1px solid #D9D3C3; background: #EEE9DC; display: flex; flex-direction: column; gap: 4px">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 4px 10px 18px">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1A1915" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M8 12h8M12 8v8"></path></svg>
+      <span style="font-family: 'Libre Caslon Text', Georgia, serif; font-size: 18px">RAG Console</span>
+    </div>
+    <div style="font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: #6B6659; padding: 6px 10px">Workspace</div>
+    <a href="#" style="display: flex; align-items: center; gap: 10px; min-height: 36px; padding: 0 10px; border-radius: 6px; color: #3D3A33; text-decoration: none">Playground</a>
+    <a href="#" style="display: flex; align-items: center; gap: 10px; min-height: 36px; padding: 0 10px; border-radius: 6px; color: #3D3A33; text-decoration: none">Query</a>
+    <a href="#" style="display: flex; align-items: center; gap: 10px; min-height: 36px; padding: 0 10px; border-radius: 6px; color: #3D3A33; text-decoration: none">Search</a>
+    <a href="#" aria-current="page" style="display: flex; align-items: center; gap: 10px; min-height: 36px; padding: 0 10px; border-radius: 6px; color: #1A1915; background: #FBF9F4; border: 1px solid #D9D3C3; font-weight: 600; text-decoration: none">Compare</a>
+    <a href="#" style="display: flex; align-items: center; gap: 10px; min-height: 36px; padding: 0 10px; border-radius: 6px; color: #3D3A33; text-decoration: none">Pipeline</a>
+    <a href="#" style="display: flex; align-items: center; gap: 10px; min-height: 36px; padding: 0 10px; border-radius: 6px; color: #3D3A33; text-decoration: none">History</a>
+    <a href="#" style="display: flex; align-items: center; gap: 10px; min-height: 36px; padding: 0 10px; border-radius: 6px; color: #3D3A33; text-decoration: none">Indexes</a>
+  </nav>
+
+  <main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 28px 32px 48px; display: flex; flex-direction: column; gap: 20px">
+
+    <header style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px">
+      <div style="display: flex; flex-direction: column; gap: 4px">
+        <div style="font-size: 12px; color: #6B6659">Workspace / Compare</div>
+        <h1 style="margin: 0; font-family: 'Libre Caslon Text', Georgia, serif; font-weight: 400; font-size: 32px; line-height: 1.15">Compare configurations</h1>
+        <p style="margin: 0; color: #6B6659; max-width: 640px">Run one query through up to three inference setups and read the results side by side. Variant A is the baseline that rank changes and parameter differences are measured against.</p>
+      </div>
+      <div style="display: flex; gap: 8px; flex-wrap: wrap">
+        <button type="button" onClick="{{addVariant}}" disabled="{{cannotAdd}}" style="min-height: 44px; padding: 0 16px; border-radius: 6px; border: 1px solid #CFC8B6; background: #FBF9F4; display: inline-flex; align-items: center; gap: 8px; font-weight: 500">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+          Add variant
+        </button>
+        <button type="button" style="min-height: 44px; padding: 0 16px; border-radius: 6px; border: 1px solid #CFC8B6; background: #FBF9F4; font-weight: 500">Save comparison</button>
+      </div>
+    </header>
+
+    <section aria-label="Query" style="background: #FBF9F4; border: 1px solid #D9D3C3; border-radius: 10px; padding: 18px; display: flex; flex-direction: column; gap: 12px">
+      <label for="cmp-query" style="font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: #6B6659">Search query</label>
+      <div style="display: flex; flex-wrap: wrap; gap: 10px">
+        <div style="flex: 1 1 360px; min-width: 0; position: relative; display: flex; align-items: center">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6B6659" stroke-width="2" aria-hidden="true" style="position: absolute; left: 14px"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+          <input id="cmp-query" type="text" value="{{query}}" onChange="{{setQuery}}" onKeyDown="{{queryKey}}" style="width: 100%; box-sizing: border-box; min-height: 48px; padding: 0 14px 0 42px; font-size: 16px">
+        </div>
+        <button type="button" onClick="{{runAll}}" disabled="{{running}}" style="min-height: 48px; padding: 0 22px; border-radius: 6px; border: 1px solid {{accent}}; background: {{accent}}; color: #FFFFFF; font-weight: 600; display: inline-flex; align-items: center; gap: 8px">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 4l14 8-14 8z"></path></svg>
+          {{runLabel}}
+        </button>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px">
+        <span style="font-size: 12.5px; color: #6B6659">Try</span>
+        <sc-for list="{{samples}}" as="q" hint-placeholder-count="3">
+          <button type="button" onClick="{{q.use}}" style="min-height: 32px; padding: 0 12px; border-radius: 999px; border: 1px solid #D9D3C3; background: #FFFFFF; font-size: 13px; color: #3D3A33">{{q.text}}</button>
+        </sc-for>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; font-size: 12.5px; color: #6B6659; border-top: 1px solid #E4DFD0; padding-top: 12px">
+        <span>Index <span style="font-family: 'JetBrains Mono', monospace; color: #3D3A33">support-docs</span> · {{corpusSize}} chunks</span>
+        <label style="display: inline-flex; align-items: center; gap: 8px; min-height: 32px; color: #1A1915; font-weight: 500">
+          <input type="checkbox" checked="{{linked}}" onChange="{{toggleLinked}}">
+          Linked edits — a change applies to every variant
+        </label>
+        <sc-if value="{{anyStale}}" hint-placeholder-val="{{ false }}">
+          <span style="color: #8A4A2C; font-weight: 600">Some variants have edits that haven’t run yet</span>
+        </sc-if>
+      </div>
+    </section>
+
+    <section aria-label="Comparison summary" style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px">
+      <span style="font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: #6B6659">Overlap in top results</span>
+      <sc-for list="{{overlaps}}" as="o" hint-placeholder-count="2">
+        <span style="display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; background: #EEE9DC; border: 1px solid #D9D3C3; font-size: 13px">
+          <span style="font-weight: 600">{{o.pair}}</span>
+          <span style="color: #3D3A33">{{o.text}}</span>
+        </span>
+      </sc-for>
+      <sc-if value="{{noOverlaps}}" hint-placeholder-val="{{ false }}">
+        <span style="font-size: 13px; color: #6B6659">Add a second variant to compare result sets.</span>
+      </sc-if>
+    </section>
+
+    <sc-if value="{{tracing}}" hint-placeholder-val="{{ false }}">
+      <section aria-label="Traced document" aria-live="polite" style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; padding: 12px 16px; border-radius: 10px; background: #1A1915; color: #F5F2EB">
+        <span style="font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #CFC8B6">Tracing</span>
+        <span style="font-weight: 600">{{trace.title}}</span>
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #CFC8B6">{{trace.path}}</span>
+        <span style="flex: 1"></span>
+        <sc-for list="{{trace.cells}}" as="t" hint-placeholder-count="3">
+          <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 13px">
+            <span style="width: 18px; height: 18px; border-radius: 4px; background: {{t.color}}; color: #FFFFFF; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600">{{t.id}}</span>
+            {{t.text}}
+          </span>
+        </sc-for>
+        <button type="button" onClick="{{clearTrace}}" style="min-height: 32px; padding: 0 12px; border-radius: 6px; border: 1px solid #6B6659; background: transparent; color: #F5F2EB">Clear</button>
+      </section>
+    </sc-if>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: 16px; align-items: start; opacity: {{gridOpacity}}; transition: opacity .2s">
+      <sc-for list="{{variants}}" as="v" hint-placeholder-count="3">
+        <section aria-label="Variant {{v.id}}" style="{{v.cardStyle}}">
+
+          <sc-if value="{{v.isBest}}" hint-placeholder-val="{{ false }}">
+            <div style="padding: 6px 16px; background: {{v.color}}; color: #FFFFFF; font-size: 12px; font-weight: 600; letter-spacing: .04em; display: flex; align-items: center; gap: 6px">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="#FFFFFF" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"></path></svg>
+              Your pick for this query
+            </div>
+          </sc-if>
+
+          <div style="display: flex; align-items: center; gap: 10px; padding: 14px 12px 14px 16px; border-bottom: 1px solid #E4DFD0">
+            <span style="width: 28px; height: 28px; border-radius: 6px; background: {{v.color}}; color: #FFFFFF; display: inline-flex; align-items: center; justify-content: center; font-weight: 600; flex: none">{{v.id}}</span>
+            <div style="flex: 1; min-width: 0; display: flex; flex-direction: column">
+              <span style="font-weight: 600; font-size: 15px">{{v.name}}</span>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #6B6659; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{v.summary}}</span>
+            </div>
+            <button type="button" onClick="{{v.pickBest}}" aria-pressed="{{v.isBest}}" aria-label="Mark variant {{v.id}} as best" style="width: 36px; height: 36px; border-radius: 6px; border: 1px solid #D9D3C3; background: #FFFFFF; display: inline-flex; align-items: center; justify-content: center">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="{{v.starFill}}" stroke="#3D3A33" stroke-width="1.6" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"></path></svg>
+            </button>
+            <button type="button" onClick="{{v.run}}" aria-label="Run variant {{v.id}}" style="width: 36px; height: 36px; border-radius: 6px; border: 1px solid #D9D3C3; background: #FFFFFF; display: inline-flex; align-items: center; justify-content: center">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="#3D3A33" aria-hidden="true"><path d="M6 4l14 8-14 8z"></path></svg>
+            </button>
+            <button type="button" onClick="{{v.duplicate}}" disabled="{{cannotAdd}}" aria-label="Duplicate variant {{v.id}}" style="width: 36px; height: 36px; border-radius: 6px; border: 1px solid #D9D3C3; background: #FFFFFF; display: inline-flex; align-items: center; justify-content: center">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#3D3A33" stroke-width="1.8" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"></rect><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"></path></svg>
+            </button>
+            <button type="button" onClick="{{v.remove}}" disabled="{{v.cannotRemove}}" aria-label="Remove variant {{v.id}}" style="width: 36px; height: 36px; border-radius: 6px; border: 1px solid #D9D3C3; background: #FFFFFF; display: inline-flex; align-items: center; justify-content: center">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3D3A33" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+            </button>
+          </div>
+
+          <button type="button" onClick="{{v.toggleOpen}}" aria-expanded="{{v.open}}" style="min-height: 44px; padding: 0 16px; border: 0; border-bottom: 1px solid #E4DFD0; background: #F5F2EB; display: flex; align-items: center; gap: 8px; text-align: left; font-weight: 600; font-size: 13px">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3D3A33" stroke-width="1.8" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12"></path><circle cx="16" cy="6" r="2"></circle><circle cx="10" cy="12" r="2"></circle><circle cx="18" cy="18" r="2"></circle></svg>
+            <span style="flex: 1">Inference parameters</span>
+            <sc-if value="{{v.hasDiffs}}" hint-placeholder-val="{{ false }}">
+              <span style="font-size: 11.5px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: #DDE5EF; color: #2C4462">{{v.diffLabel}}</span>
+            </sc-if>
+            <sc-if value="{{v.stale}}" hint-placeholder-val="{{ false }}">
+              <span style="font-size: 11.5px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: #F3DCCD; color: #7E4127">Edited</span>
+            </sc-if>
+            <span style="font-weight: 400; color: #6B6659">{{v.toggleLabel}}</span>
+          </button>
+
+          <sc-if value="{{v.closed}}" hint-placeholder-val="{{ false }}">
+            <div style="padding: 10px 16px; border-bottom: 1px solid #E4DFD0; display: flex; flex-wrap: wrap; gap: 6px">
+              <sc-for list="{{v.chips}}" as="k" hint-placeholder-count="4">
+                <span style="{{k.style}}">{{k.text}}</span>
+              </sc-for>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{v.open}}" hint-placeholder-val="{{ true }}">
+            <div style="padding: 16px; display: flex; flex-direction: column; gap: 18px; border-bottom: 1px solid #E4DFD0">
+
+              <fieldset style="border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px">
+                <legend style="padding: 0; margin-bottom: 10px; font-size: 11.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #6B6659">Model</legend>
+                <div style="display: flex; flex-direction: column; gap: 6px">
+                  <div style="display: flex; align-items: center; gap: 8px">
+                    <label for="{{v.id}}-model" style="font-size: 13px; font-weight: 500">Model</label>
+                    <sc-if value="{{v.diff.model}}" hint-placeholder-val="{{ false }}"><span style="font-size: 11px; font-weight: 600; color: #2C4462; background: #DDE5EF; padding: 0 6px; border-radius: 4px">≠ A</span></sc-if>
+                  </div>
+                  <select id="{{v.id}}-model" value="{{v.d.model}}" onChange="{{v.setModel}}" style="min-height: 40px; padding: 0 10px">
+                    <option value="claude-opus-5-5">Claude Opus 5.5</option>
+                    <option value="claude-sonnet-5-5">Claude Sonnet 5.5</option>
+                    <option value="claude-haiku-5-5">Claude Haiku 5.5</option>
+                    <option value="gpt-4o">GPT-4o</option>
+                    <option value="llama-3-70b">Llama 3 70B</option>
+                  </select>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 4px">
+                  <div style="display: flex; align-items: center; gap: 8px">
+                    <label for="{{v.id}}-temp" style="font-size: 13px; font-weight: 500">Temperature</label>
+                    <sc-if value="{{v.diff.temperature}}" hint-placeholder-val="{{ false }}"><span style="font-size: 11px; font-weight: 600; color: #2C4462; background: #DDE5EF; padding: 0 6px; border-radius: 4px">≠ A</span></sc-if>
+                    <span style="flex: 1"></span>
+                    <span style="font-family: 'JetBrains Mono', monospace; font-size: 12.5px">{{v.tempStr}}</span>
+                  </div>
+                  <input id="{{v.id}}-temp" type="range" min="0" max="1" step="0.05" value="{{v.d.temperature}}" onChange="{{v.setTemp}}">
+                </div>
+              </fieldset>
+
+              <fieldset style="border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px">
+                <legend style="padding: 0; margin-bottom: 10px; font-size: 11.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #6B6659">Prompt</legend>
+                <div style="display: flex; flex-direction: column; gap: 6px">
+                  <div style="display: flex; align-items: center; gap: 8px">
+                    <label for="{{v.id}}-preset" style="font-size: 13px; font-weight: 500">Template</label>
+                    <sc-if value="{{v.diff.preset}}" hint-placeholder-val="{{ false }}"><span style="font-size: 11px; font-weight: 600; color: #2C4462; background: #DDE5EF; padding: 0 6px; border-radius: 4px">≠ A</span></sc-if>
+                  </div>
+                  <select id="{{v.id}}-preset" value="{{v.d.preset}}" onChange="{{v.setPreset}}" style="min-height: 40px; padding: 0 10px">
+                    <option value="concise">Concise answer</option>
+                    <option value="detailed">Detailed with steps</option>
+                    <option value="strict">Strict citations only</option>
+                    <option value="custom">Custom</option>
+                  </select>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 6px">
+                  <label for="{{v.id}}-prompt" style="font-size: 13px; font-weight: 500">System prompt</label>
+                  <textarea id="{{v.id}}-prompt" rows="4" value="{{v.d.prompt}}" onChange="{{v.setPrompt}}" style="padding: 8px 10px; resize: vertical; font-family: 'JetBrains Mono', monospace; font-size: 12.5px; line-height: 1.5"></textarea>
+                </div>
+              </fieldset>
+
+              <fieldset style="border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px">
+                <legend style="padding: 0; margin-bottom: 10px; font-size: 11.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #6B6659">Retrieval</legend>
+                <div style="display: flex; flex-direction: column; gap: 4px">
+                  <div style="display: flex; align-items: center; gap: 8px">
+                    <label for="{{v.id}}-k" style="font-size: 13px; font-weight: 500">Top K</label>
+                    <sc-if value="{{v.diff.topK}}" hint-placeholder-val="{{ false }}"><span style="font-size: 11px; font-weight: 600; color: #2C4462; background: #DDE5EF; padding: 0 6px; border-radius: 4px">≠ A</span></sc-if>
+                    <span style="flex: 1"></span>
+                    <span style="font-family: 'JetBrains Mono', monospace; font-size: 12.5px">{{v.d.topK}}</span>
+                  </div>
+                  <input id="{{v.id}}-k" type="range" min="1" max="10" step="1" value="{{v.d.topK}}" onChange="{{v.setTopK}}">
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 4px">
+                  <div style="display: flex; align-items: center; gap: 8px">
+                    <label for="{{v.id}}-alpha" style="font-size: 13px; font-weight: 500">Hybrid weight</label>
+                    <sc-if value="{{v.diff.alpha}}" hint-placeholder-val="{{ false }}"><span style="font-size: 11px; font-weight: 600; color: #2C4462; background: #DDE5EF; padding: 0 6px; border-radius: 4px">≠ A</span></sc-if>
+                    <span style="flex: 1"></span>
+                    <span style="font-family: 'JetBrains Mono', monospace; font-size: 12.5px">{{v.alphaStr}}</span>
+                  </div>
+                  <input id="{{v.id}}-alpha" type="range" min="0" max="1" step="0.05" value="{{v.d.alpha}}" onChange="{{v.setAlpha}}">
+                  <div style="display: flex; justify-content: space-between; font-size: 11.5px; color: #6B6659"><span>Keyword</span><span>Semantic</span></div>
+                </div>
+                <label style="display: flex; align-items: center; gap: 10px; min-height: 36px; font-size: 13px; font-weight: 500">
+                  <input type="checkbox" checked="{{v.d.rerank}}" onChange="{{v.setRerank}}">
+                  Cross-encoder rerank
+                  <sc-if value="{{v.diff.rerank}}" hint-placeholder-val="{{ false }}"><span style="font-size: 11px; font-weight: 600; color: #2C4462; background: #DDE5EF; padding: 0 6px; border-radius: 4px">≠ A</span></sc-if>
+                </label>
+              </fieldset>
+
+              <fieldset style="border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px">
+                <legend style="padding: 0; margin-bottom: 10px; font-size: 11.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #6B6659">Boosting</legend>
+                <div style="display: flex; flex-direction: column; gap: 4px">
+                  <div style="display: flex; align-items: center; gap: 8px">
+                    <label for="{{v.id}}-rec" style="font-size: 13px; font-weight: 500">Recency boost</label>
+                    <sc-if value="{{v.diff.recency}}" hint-placeholder-val="{{ false }}"><span style="font-size: 11px; font-weight: 600; color: #2C4462; background: #DDE5EF; padding: 0 6px; border-radius: 4px">≠ A</span></sc-if>
+                    <span style="flex: 1"></span>
+                    <span style="font-family: 'JetBrains Mono', monospace; font-size: 12.5px">{{v.recStr}}</span>
+                  </div>
+                  <input id="{{v.id}}-rec" type="range" min="0" max="1" step="0.05" value="{{v.d.recency}}" onChange="{{v.setRecency}}">
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 4px">
+                  <div style="display: flex; align-items: center; gap: 8px">
+                    <label for="{{v.id}}-title" style="font-size: 13px; font-weight: 500">Title match boost</label>
+                    <sc-if value="{{v.diff.titleBoost}}" hint-placeholder-val="{{ false }}"><span style="font-size: 11px; font-weight: 600; color: #2C4462; background: #DDE5EF; padding: 0 6px; border-radius: 4px">≠ A</span></sc-if>
+                    <span style="flex: 1"></span>
+                    <span style="font-family: 'JetBrains Mono', monospace; font-size: 12.5px">{{v.titleStr}}</span>
+                  </div>
+                  <input id="{{v.id}}-title" type="range" min="0" max="1" step="0.05" value="{{v.d.titleBoost}}" onChange="{{v.setTitle}}">
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 6px">
+                  <div style="display: flex; align-items: center; gap: 8px">
+                    <label for="{{v.id}}-section" style="font-size: 13px; font-weight: 500">Boost section</label>
+                    <sc-if value="{{v.diff.section}}" hint-placeholder-val="{{ false }}"><span style="font-size: 11px; font-weight: 600; color: #2C4462; background: #DDE5EF; padding: 0 6px; border-radius: 4px">≠ A</span></sc-if>
+                  </div>
+                  <select id="{{v.id}}-section" value="{{v.d.section}}" onChange="{{v.setSection}}" style="min-height: 40px; padding: 0 10px">
+                    <option value="none">None</option>
+                    <option value="security">security/</option>
+                    <option value="guides">guides/</option>
+                    <option value="changelog">changelog/</option>
+                    <option value="reference">reference/</option>
+                  </select>
+                </div>
+              </fieldset>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{v.notRun}}" hint-placeholder-val="{{ false }}">
+            <div style="padding: 32px 16px; text-align: center; color: #6B6659">Not run yet. Set parameters, then run this variant.</div>
+          </sc-if>
+
+          <sc-if value="{{v.hasRun}}" hint-placeholder-val="{{ true }}">
+            <div style="display: flex; flex-direction: column">
+              <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-bottom: 1px solid #E4DFD0">
+                <div style="padding: 12px 16px; display: flex; flex-direction: column; gap: 2px">
+                  <span style="font-size: 11.5px; color: #6B6659">Latency (est.)</span>
+                  <span style="font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 500">{{v.latency}}</span>
+                </div>
+                <div style="padding: 12px 16px; display: flex; flex-direction: column; gap: 2px; border-left: 1px solid #E4DFD0">
+                  <span style="font-size: 11.5px; color: #6B6659">Context tokens</span>
+                  <span style="font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 500">{{v.tokens}}</span>
+                </div>
+                <div style="padding: 12px 16px; display: flex; flex-direction: column; gap: 2px; border-left: 1px solid #E4DFD0">
+                  <span style="font-size: 11.5px; color: #6B6659">{{v.thirdLabel}}</span>
+                  <span style="font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 500">{{v.thirdValue}}</span>
+                </div>
+              </div>
+
+              <div style="padding: 16px; display: flex; flex-direction: column; gap: 8px; border-bottom: 1px solid #E4DFD0">
+                <span style="font-size: 11.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #6B6659">Generated answer</span>
+                <p style="margin: 0; font-family: 'Libre Caslon Text', Georgia, serif; font-size: 14.5px; line-height: 1.7; color: #1A1915">
+                  <sc-for list="{{v.answerParts}}" as="p" hint-placeholder-count="4">
+                    <sc-if value="{{p.isText}}" hint-placeholder-val="{{ true }}"><span>{{p.text}}</span></sc-if>
+                    <sc-if value="{{p.isCite}}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{p.trace}}" aria-label="Trace source {{p.n}}: {{p.title}}" style="{{p.style}}">{{p.n}}</button></sc-if>
+                  </sc-for>
+                </p>
+              </div>
+
+              <div style="padding: 16px 16px 8px; display: flex; justify-content: space-between; align-items: baseline">
+                <span style="font-size: 11.5px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #6B6659">Retrieved chunks</span>
+                <span style="font-size: 12px; color: #6B6659">{{v.resultsLabel}}</span>
+              </div>
+              <sc-if value="{{v.traceMissing}}" hint-placeholder-val="{{ false }}">
+                <div style="margin: 0 16px 8px; padding: 8px 12px; border-radius: 6px; border: 1px dashed #6B6659; font-size: 13px; color: #3D3A33">The traced document isn’t in this variant’s top {{v.d.topK}}.</div>
+              </sc-if>
+              <ol style="list-style: none; margin: 0; padding: 0 8px 12px; display: flex; flex-direction: column; gap: 4px">
+                <sc-for list="{{v.results}}" as="r" hint-placeholder-count="5">
+                  <li>
+                    <button type="button" onClick="{{r.trace}}" aria-pressed="{{r.traced}}" style="{{r.rowStyle}}">
+                      <span style="flex: none; width: 24px; height: 24px; border-radius: 999px; border: 1px solid #CFC8B6; background: #FFFFFF; display: inline-flex; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 12px">{{r.rank}}</span>
+                      <span style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px">
+                        <span style="display: flex; align-items: center; gap: 8px">
+                          <span style="flex: 1; min-width: 0; font-weight: 600">{{r.title}}</span>
+                          <sc-if value="{{r.showDelta}}" hint-placeholder-val="{{ false }}">
+                            <span style="{{r.deltaStyle}}">{{r.deltaText}}</span>
+                          </sc-if>
+                        </span>
+                        <span style="font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: #6B6659">{{r.path}}</span>
+                        <span style="font-size: 13px; color: #3D3A33">{{r.snippet}}</span>
+                        <span style="display: flex; align-items: center; gap: 8px; margin-top: 2px">
+                          <span style="flex: 1; height: 6px; border-radius: 3px; background: #E8E3D8; overflow: hidden"><span style="display: block; height: 100%; width: {{r.pct}}; background: {{r.color}}"></span></span>
+                          <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; min-width: 44px; text-align: right">{{r.scoreStr}}</span>
+                        </span>
+                        <sc-if value="{{r.showBoosts}}" hint-placeholder-val="{{ false }}">
+                          <span style="display: flex; flex-wrap: wrap; gap: 4px">
+                            <sc-for list="{{r.boosts}}" as="b" hint-placeholder-count="1">
+                              <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 1px 6px; border-radius: 4px; background: #EEE9DC; color: #3D3A33">{{b.label}}</span>
+                            </sc-for>
+                          </span>
+                        </sc-if>
+                      </span>
+                    </button>
+                  </li>
+                </sc-for>
+              </ol>
+            </div>
+          </sc-if>
+        </section>
+      </sc-for>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#A15735","options":["#A15735","#3D5A80","#1A1915"]},"showScoreBreakdown":{"editor":"boolean","default":true},"$preview":{"width":1440,"height":1960}}'>
+var CMP_COLORS = { A: '#A15735', B: '#3D5A80', C: '#4F6B43' };
+var CMP_MODELS = {
+  'claude-opus-5-5': { label: 'Claude Opus 5.5', short: 'Opus 5.5', base: 1500, maxFacts: 3 },
+  'claude-sonnet-5-5': { label: 'Claude Sonnet 5.5', short: 'Sonnet 5.5', base: 880, maxFacts: 3 },
+  'claude-haiku-5-5': { label: 'Claude Haiku 5.5', short: 'Haiku 5.5', base: 410, maxFacts: 2 },
+  'gpt-4o': { label: 'GPT-4o', short: 'GPT-4o', base: 940, maxFacts: 3 },
+  'llama-3-70b': { label: 'Llama 3 70B', short: 'Llama 3 70B', base: 690, maxFacts: 2 }
+};
+var CMP_PROMPTS = {
+  concise: 'You are a support assistant. Answer in one or two sentences using only the provided context. Cite sources as [n].',
+  detailed: 'You are a support assistant. Give a step-by-step answer grounded in the provided context. Cite every step as [n].',
+  strict: 'Answer only if the context directly supports it. Quote the source for every claim as [n]. If support is weak, say you do not know.'
+};
+var CMP_SAMPLES = ['How do I rotate API keys without downtime?', 'Why am I getting 401 errors after changing keys?', 'Do rate limits reset with a new key?'];
+var CMP_PARAMS = ['model', 'temperature', 'preset', 'topK', 'alpha', 'rerank', 'recency', 'titleBoost', 'section'];
+var CMP_STOP = { how: 1, the: 1, and: 1, for: 1, you: 1, can: 1, what: 1, does: 1, with: 1, from: 1, our: 1, are: 1, why: 1 };
+var CMP_DOCS = [
+  { id: 'd1', title: 'Rotating API keys', path: 'security/api-keys.md', section: 'security', sem: 0.92, fresh: 0.8, rr: 0.95, tokens: 410, tags: 'rotate rotation api keys key revoke', snippet: 'Create a second key, deploy it alongside the old one, then revoke the old key once traffic has moved.', fact: 'Create a new key, roll it out alongside the existing one, and revoke the old key only after traffic has switched over' },
+  { id: 'd2', title: 'Key management overview', path: 'security/overview.md', section: 'security', sem: 0.78, fresh: 0.5, rr: 0.7, tokens: 380, tags: 'keys management workspace active api', snippet: 'Keys are scoped per workspace. Each workspace can hold two active keys at once.', fact: 'Each workspace can hold two active keys at the same time, which is what makes an overlap window possible' },
+  { id: 'd3', title: 'Zero-downtime deployments', path: 'guides/zero-downtime.md', section: 'guides', sem: 0.66, fresh: 0.6, rr: 0.62, tokens: 450, tags: 'downtime deploy rolling restart without', snippet: 'Use rolling restarts so instances pick up new environment variables without dropping requests.', fact: 'Use a rolling restart so each instance picks up the new key without dropping requests' },
+  { id: 'd4', title: 'Changelog: dual-key support', path: 'changelog/2026-09.md', section: 'changelog', sem: 0.71, fresh: 1.0, rr: 0.8, tokens: 220, tags: 'dual key keys rotation outage changelog api', snippet: 'Workspaces now support two concurrent API keys, enabling rotation without an outage.', fact: 'With dual-key support, both keys stay valid during the switch' },
+  { id: 'd5', title: 'Troubleshooting 401 errors', path: 'guides/errors-401.md', section: 'guides', sem: 0.55, fresh: 0.4, rr: 0.5, tokens: 340, tags: '401 errors revoked key auth getting changing', snippet: 'A 401 after rotation usually means a service is still sending the revoked key.', fact: 'If 401 errors appear afterwards, some service is still sending the revoked key' },
+  { id: 'd6', title: 'Service accounts and scopes', path: 'security/service-accounts.md', section: 'security', sem: 0.5, fresh: 0.3, rr: 0.38, tokens: 400, tags: 'service accounts scopes keys rotate', snippet: 'Give each service its own key so you can rotate them independently.', fact: 'Giving each service its own key lets you rotate them one at a time' },
+  { id: 'd7', title: 'Secrets in CI pipelines', path: 'guides/ci-secrets.md', section: 'guides', sem: 0.48, fresh: 0.55, rr: 0.42, tokens: 310, tags: 'secrets ci pipelines keys', snippet: 'Store keys in your CI secret store and reference them by name, never inline.', fact: 'Update the key in your CI secret store so new builds pick it up' },
+  { id: 'd8', title: 'Legacy v1 authentication', path: 'security/legacy-v1.md', section: 'security', sem: 0.6, fresh: 0.05, rr: 0.2, tokens: 360, tags: 'legacy v1 tokens rotated reissued outage keys api', snippet: 'v1 tokens cannot be rotated; they must be reissued, which causes a brief outage.', fact: 'Legacy v1 tokens cannot be rotated and must be reissued, which causes a brief outage' },
+  { id: 'd9', title: 'Webhook signing secrets', path: 'security/webhooks.md', section: 'security', sem: 0.4, fresh: 0.45, rr: 0.25, tokens: 290, tags: 'webhook signing secrets rotate grace', snippet: 'Webhook secrets rotate separately from API keys and keep a grace window for the old secret.', fact: 'Webhook signing secrets rotate separately and are not affected' },
+  { id: 'd10', title: 'Rate limits', path: 'reference/rate-limits.md', section: 'reference', sem: 0.2, fresh: 0.5, rr: 0.1, tokens: 260, tags: 'rate limits key quota api reset new', snippet: 'Limits are applied per key, so a new key starts with its own quota.', fact: 'Rate limits apply per key, so the new key starts with its own quota' },
+  { id: 'd11', title: 'Audit logs', path: 'security/audit-logs.md', section: 'security', sem: 0.35, fresh: 0.6, rr: 0.3, tokens: 240, tags: 'audit logs key revocation', snippet: 'Every key creation and revocation is recorded with the actor and timestamp.', fact: 'Each key creation and revocation shows up in the audit log' },
+  { id: 'd12', title: 'SDK configuration', path: 'reference/sdk-config.md', section: 'reference', sem: 0.45, fresh: 0.7, rr: 0.35, tokens: 300, tags: 'sdk configuration environment key reload', snippet: 'SDKs read the key from an environment variable at startup; restart to pick up changes.', fact: 'SDKs read the key at startup, so restart clients after updating it' }
+];
+
+function cmpTerms(q) {
+  return String(q || '').toLowerCase().split(/[^a-z0-9]+/).filter(function (t) { return t.length > 2 && !CMP_STOP[t]; });
+}
+function cmpHas(text, t) {
+  return text.indexOf(t) >= 0 || (t.length > 4 && t.charAt(t.length - 1) === 's' && text.indexOf(t.slice(0, -1)) >= 0);
+}
+function cmpRank(cfg, query) {
+  var terms = cmpTerms(query);
+  var rows = CMP_DOCS.map(function (doc) {
+    var hay = (doc.title + ' ' + doc.tags + ' ' + doc.snippet).toLowerCase();
+    var title = doc.title.toLowerCase();
+    var hits = terms.filter(function (t) { return cmpHas(hay, t); }).length;
+    var lex = terms.length ? hits / terms.length : 0;
+    var sem = doc.sem * 0.75 + lex * 0.25;
+    var score = cfg.alpha * sem + (1 - cfg.alpha) * lex;
+    var boosts = [];
+    var rec = cfg.recency * doc.fresh * 0.4;
+    if (rec >= 0.01) { score += rec; boosts.push({ label: 'recency +' + rec.toFixed(2) }); }
+    var titleHit = terms.some(function (t) { return cmpHas(title, t); });
+    var tb = titleHit ? cfg.titleBoost * 0.3 : 0;
+    if (tb >= 0.01) { score += tb; boosts.push({ label: 'title +' + tb.toFixed(2) }); }
+    if (cfg.section !== 'none' && doc.section === cfg.section) { score += 0.25; boosts.push({ label: doc.section + '/ +0.25' }); }
+    if (cfg.rerank) { score = score * 0.6 + doc.rr * 0.4; boosts.push({ label: 'reranked' }); }
+    return { doc: doc, score: score, boosts: boosts };
+  });
+  rows.sort(function (a, b) { return b.score - a.score; });
+  return rows.slice(0, cfg.topK);
+}
+function cmpAnswer(cfg, rows) {
+  if (!rows.length) return '';
+  if (cfg.preset === 'strict' && rows[0].score < 0.5) return 'The retrieved context does not support a confident answer to this question.';
+  var max = cfg.preset === 'concise' ? 1 : CMP_MODELS[cfg.model].maxFacts;
+  var parts = rows.slice(0, max).map(function (r, i) { return r.doc.fact + ' [' + (i + 1) + '].'; });
+  var lead = cfg.preset === 'strict' ? 'According to the retrieved docs: ' : (cfg.preset === 'detailed' ? 'Here is the safe order of operations. ' : '');
+  var tail = cfg.temperature > 0.6 ? ' Depending on your setup, other services may need the same update.' : '';
+  return lead + parts.join(' ') + tail;
+}
+function cmpMake(id, name, d) {
+  var draft = Object.assign({}, d, { prompt: d.prompt || CMP_PROMPTS[d.preset] });
+  return { id: id, name: name, open: id === 'A', d: draft, a: Object.assign({}, draft) };
+}
+function cmpFmt(key, v) {
+  if (key === 'model') return CMP_MODELS[v].short;
+  if (key === 'rerank') return v ? 'rerank on' : 'rerank off';
+  if (key === 'section') return v === 'none' ? 'no section boost' : v + '/ boost';
+  if (key === 'preset') return v + ' prompt';
+  if (key === 'topK') return 'k ' + v;
+  var names = { temperature: 'temp', alpha: 'α', recency: 'recency', titleBoost: 'title' };
+  return names[key] + ' ' + Number(v).toFixed(2);
+}
+
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = {
+      query: CMP_SAMPLES[0],
+      ranQuery: CMP_SAMPLES[0],
+      running: false,
+      linked: false,
+      trace: null,
+      best: null,
+      variants: [
+        cmpMake('A', 'Baseline', { model: 'claude-sonnet-5-5', temperature: 0.2, preset: 'concise', topK: 5, alpha: 0.5, rerank: false, recency: 0, titleBoost: 0, section: 'none' }),
+        cmpMake('B', 'Hybrid + rerank', { model: 'claude-sonnet-5-5', temperature: 0.2, preset: 'detailed', topK: 5, alpha: 0.7, rerank: true, recency: 0.3, titleBoost: 0.2, section: 'none' }),
+        cmpMake('C', 'Fast + fresh', { model: 'claude-haiku-5-5', temperature: 0.5, preset: 'strict', topK: 3, alpha: 0.4, rerank: false, recency: 0.8, titleBoost: 0.4, section: 'changelog' })
+      ]
+    };
+  }
+  componentWillUnmount() { clearTimeout(this.timer); }
+  upd(i, patch) {
+    var linked = this.state.linked;
+    this.setState({ variants: this.state.variants.map(function (v, j) { return (linked || j === i) ? Object.assign({}, v, { d: Object.assign({}, v.d, patch) }) : v; }) });
+  }
+  run(only) {
+    var self = this;
+    this.setState({ running: true });
+    clearTimeout(this.timer);
+    this.timer = setTimeout(function () {
+      self.setState(function (s) {
+        return {
+          running: false,
+          ranQuery: s.query,
+          best: s.query === s.ranQuery ? s.best : null,
+          variants: s.variants.map(function (v, j) {
+            return (only == null || only === j) ? Object.assign({}, v, { a: Object.assign({}, v.d), q: s.query }) : v;
+          })
+        };
+      });
+    }, 600);
+  }
+  nextId() {
+    var used = this.state.variants.map(function (v) { return v.id; });
+    return ['A', 'B', 'C'].filter(function (x) { return used.indexOf(x) < 0; })[0];
+  }
+  add(fromIndex) {
+    var vs = this.state.variants;
+    if (vs.length >= 3) return;
+    var src = vs[fromIndex == null ? vs.length - 1 : fromIndex];
+    var id = this.nextId();
+    var copy = { id: id, name: fromIndex == null ? 'Variant ' + id : src.name + ' (copy)', open: true, d: Object.assign({}, src.d), a: null };
+    this.setState({ variants: vs.concat([copy]) });
+  }
+  renderVals() {
+    var self = this;
+    var s = this.state;
+    var accent = this.props.accent ?? '#A15735';
+    var showBreak = this.props.showScoreBreakdown ?? true;
+    var vs = s.variants;
+    var ranked = vs.map(function (v) { return v.a ? cmpRank(v.a, v.q || s.ranQuery) : null; });
+    var basePos = {};
+    if (ranked[0]) ranked[0].forEach(function (r, i) { basePos[r.doc.id] = i; });
+    var baseD = vs[0].d;
+    var traceFn = function (id) { return function () { self.setState({ trace: self.state.trace === id ? null : id }); }; };
+
+    var variants = vs.map(function (v, i) {
+      var rows = ranked[i] || [];
+      var color = CMP_COLORS[v.id];
+      var stale = !v.a || JSON.stringify(v.d) !== JSON.stringify(v.a) || (v.q || s.ranQuery) !== s.query;
+      var diff = {}, diffKeys = [];
+      CMP_PARAMS.forEach(function (k) { diff[k] = i > 0 && v.d[k] !== baseD[k]; if (diff[k]) diffKeys.push(k); });
+      var chipBase = 'font-family: \'JetBrains Mono\', monospace; font-size: 11.5px; padding: 2px 8px; border-radius: 4px; ';
+      var chipKeys = i === 0 ? ['model', 'topK', 'alpha', 'rerank'] : diffKeys;
+      var chips = chipKeys.map(function (k) { return { text: cmpFmt(k, v.d[k]), style: chipBase + (i === 0 ? 'background: #EEE9DC; color: #3D3A33' : 'background: #DDE5EF; color: #2C4462') }; });
+      if (i > 0 && !chips.length) chips = [{ text: 'same as A', style: chipBase + 'background: #EEE9DC; color: #3D3A33' }];
+      var traceHere = false;
+      var results = rows.map(function (r, k) {
+        var showDelta = i > 0 && !!ranked[0];
+        var text = '', style = '';
+        var chip = 'font-size: 11.5px; font-weight: 600; padding: 1px 7px; border-radius: 999px; white-space: nowrap; ';
+        if (showDelta) {
+          var p = basePos[r.doc.id];
+          if (p == null) { text = 'new'; style = chip + 'background: #E8E3D8; color: #1A1915'; }
+          else if (p === k) { text = 'same'; style = chip + 'background: transparent; color: #6B6659; border: 1px solid #D9D3C3'; }
+          else if (p > k) { text = '▲ ' + (p - k); style = chip + 'background: #DDE5EF; color: #2C4462'; }
+          else { text = '▼ ' + (k - p); style = chip + 'background: #F3DCCD; color: #7E4127'; }
+        }
+        var traced = s.trace === r.doc.id;
+        if (traced) traceHere = true;
+        var dim = s.trace && !traced;
+        return {
+          rank: k + 1, title: r.doc.title, path: r.doc.path, snippet: r.doc.snippet,
+          scoreStr: r.score.toFixed(3), pct: Math.min(100, Math.round(r.score / 1.4 * 100)) + '%', color: color,
+          showDelta: showDelta, deltaText: text, deltaStyle: style,
+          boosts: r.boosts, showBoosts: showBreak && r.boosts.length > 0,
+          traced: traced, trace: traceFn(r.doc.id),
+          rowStyle: 'width: 100%; display: flex; gap: 10px; padding: 10px 8px; border-radius: 6px; text-align: left; background: ' + (traced ? '#FFFFFF' : 'transparent') + '; border: ' + (traced ? '2px solid #1A1915' : '2px solid transparent') + '; opacity: ' + (dim ? '.5' : '1') + '; transition: opacity .15s'
+        };
+      });
+      var answerText = v.a ? cmpAnswer(v.a, rows) : '';
+      var answerParts = answerText.split(/(\[\d+\])/).filter(Boolean).map(function (seg) {
+        var m = seg.match(/^\[(\d+)\]$/);
+        if (!m) return { isText: true, isCite: false, text: seg };
+        var row = rows[Number(m[1]) - 1];
+        var on = row && s.trace === row.doc.id;
+        return { isText: false, isCite: true, n: m[1], title: row ? row.doc.title : '', trace: row ? traceFn(row.doc.id) : null,
+          style: 'min-width: 22px; height: 20px; margin: 0 2px; padding: 0 5px; border-radius: 4px; border: 1px solid ' + color + '; background: ' + (on ? color : '#FFFFFF') + '; color: ' + (on ? '#FFFFFF' : color) + '; font-family: \'JetBrains Mono\', monospace; font-size: 11.5px; font-weight: 600; vertical-align: 2px' };
+      });
+      var cfg = v.a || v.d;
+      var tokens = rows.reduce(function (n, r) { return n + r.doc.tokens; }, 0) + Math.round(cfg.prompt.length / 4);
+      var latency = CMP_MODELS[cfg.model].base + cfg.topK * 14 + (cfg.rerank ? 160 : 0);
+      var shared = ranked[0] ? rows.filter(function (r) { return basePos[r.doc.id] != null; }).length : 0;
+      var isBest = s.best === v.id;
+      function set(key, num) { return function (e) { var p = {}; p[key] = num ? Number(e.target.value) : e.target.value; self.upd(i, p); }; }
+      return {
+        id: v.id, name: v.name, color: color, open: v.open, closed: !v.open,
+        cardStyle: 'background: #FBF9F4; border: ' + (isBest ? '2px solid ' + color : '1px solid #D9D3C3') + '; border-top: 4px solid ' + color + '; border-radius: 10px; display: flex; flex-direction: column; min-width: 0; overflow: hidden; box-shadow: ' + (isBest ? '0 6px 20px rgba(26,25,21,.12)' : 'none'),
+        isBest: isBest, starFill: isBest ? '#B07B2C' : 'none',
+        toggleLabel: v.open ? 'Hide' : 'Show',
+        summary: CMP_MODELS[v.d.model].label + ' · k=' + v.d.topK + (v.d.rerank ? ' · rerank' : ''),
+        diff: diff, hasDiffs: diffKeys.length > 0, diffLabel: diffKeys.length + (diffKeys.length === 1 ? ' change' : ' changes') + ' vs A',
+        chips: chips,
+        stale: stale, notRun: !v.a, hasRun: !!v.a,
+        d: v.d,
+        tempStr: v.d.temperature.toFixed(2), alphaStr: v.d.alpha.toFixed(2),
+        recStr: v.d.recency.toFixed(2), titleStr: v.d.titleBoost.toFixed(2),
+        results: results,
+        traceMissing: !!s.trace && !!v.a && !traceHere,
+        resultsLabel: 'top ' + rows.length + (i > 0 ? ' · change vs A' : ' · baseline') + ' · select to trace',
+        answerParts: answerParts,
+        latency: '~' + latency + ' ms', tokens: tokens.toLocaleString('en-US'),
+        thirdLabel: i === 0 ? 'Top score' : 'Shared with A',
+        thirdValue: i === 0 ? (rows[0] ? rows[0].score.toFixed(3) : '—') : shared + ' of ' + rows.length,
+        cannotRemove: vs.length <= 1,
+        setModel: set('model'), setTemp: set('temperature', true), setTopK: set('topK', true),
+        setAlpha: set('alpha', true), setRecency: set('recency', true), setTitle: set('titleBoost', true),
+        setSection: set('section'),
+        setRerank: function (e) { self.upd(i, { rerank: e.target.checked }); },
+        setPreset: function (e) { var p = e.target.value; self.upd(i, p === 'custom' ? { preset: p } : { preset: p, prompt: CMP_PROMPTS[p] }); },
+        setPrompt: function (e) { self.upd(i, { prompt: e.target.value, preset: 'custom' }); },
+        toggleOpen: function () { self.setState({ variants: self.state.variants.map(function (x, j) { return j === i ? Object.assign({}, x, { open: !x.open }) : x; }) }); },
+        pickBest: function () { self.setState({ best: self.state.best === v.id ? null : v.id }); },
+        run: function () { self.run(i); },
+        duplicate: function () { self.add(i); },
+        remove: function () { if (self.state.variants.length > 1) self.setState({ variants: self.state.variants.filter(function (x, j) { return j !== i; }) }); }
+      };
+    });
+
+    var overlaps = [];
+    for (var a = 0; a < vs.length; a++) {
+      for (var b = a + 1; b < vs.length; b++) {
+        if (!ranked[a] || !ranked[b]) continue;
+        var ids = ranked[a].map(function (r) { return r.doc.id; });
+        var shared = ranked[b].filter(function (r) { return ids.indexOf(r.doc.id) >= 0; }).length;
+        overlaps.push({ pair: vs[a].id + ' ↔ ' + vs[b].id, text: shared + ' of ' + Math.min(ranked[a].length, ranked[b].length) + ' shared' });
+      }
+    }
+
+    var traceDoc = s.trace ? CMP_DOCS.filter(function (d) { return d.id === s.trace; })[0] : null;
+    var trace = { title: '', path: '', cells: [] };
+    if (traceDoc) {
+      trace = { title: traceDoc.title, path: traceDoc.path, cells: vs.map(function (v, i) {
+        var rows = ranked[i] || [], k = -1;
+        rows.forEach(function (r, j) { if (r.doc.id === traceDoc.id) k = j; });
+        return { id: v.id, color: CMP_COLORS[v.id], text: !ranked[i] ? 'not run' : (k < 0 ? 'not retrieved' : '#' + (k + 1) + ' · ' + rows[k].score.toFixed(3)) };
+      }) };
+    }
+
+    return {
+      accent: accent,
+      query: s.query,
+      running: s.running,
+      runLabel: s.running ? 'Running…' : 'Run all',
+      gridOpacity: s.running ? '0.5' : '1',
+      corpusSize: CMP_DOCS.length,
+      linked: s.linked,
+      samples: CMP_SAMPLES.map(function (q) { return { text: q, use: function () { self.setState({ query: q }, function () { self.run(null); }); } }; }),
+      anyStale: variants.some(function (v) { return v.stale; }),
+      cannotAdd: vs.length >= 3,
+      variants: variants,
+      overlaps: overlaps,
+      noOverlaps: overlaps.length === 0,
+      tracing: !!traceDoc,
+      trace: trace,
+      clearTrace: function () { self.setState({ trace: null }); },
+      toggleLinked: function (e) { self.setState({ linked: e.target.checked }); },
+      setQuery: function (e) { self.setState({ query: e.target.value }); },
+      queryKey: function (e) { if (e.key === 'Enter') self.run(null); },
+      runAll: function () { self.run(null); },
+      addVariant: function () { self.add(null); }
+    };
+  }
+}
+</script>
+</body>
+</html>

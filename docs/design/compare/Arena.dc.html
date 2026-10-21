@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Blind Arena — compare</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&amp;display=swap">
+<style>
+body{margin:0;background:#FFF6E5}
+a{color:#4B32C3}a:hover{color:#1E1433}
+input,select,textarea,button{font:inherit;color:inherit}
+button{cursor:pointer}
+button:disabled{cursor:not-allowed;opacity:.4}
+input[type=range]{accent-color:#1E1433;width:100%;margin:0;height:24px}
+input[type=checkbox]{accent-color:#1E1433;width:20px;height:20px;margin:0}
+select,textarea{background:#FFFFFF;border:2px solid #1E1433;border-radius:10px}
+:focus-visible{outline:3px solid #4B32C3;outline-offset:2px}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #FFF6E5; color: #1E1433; font-family: 'Bricolage Grotesque', system-ui, sans-serif; font-size: 16px; line-height: 1.5">
+<div style="max-width: 1240px; margin: 0 auto; padding: 32px 28px 64px; display: flex; flex-direction: column; gap: 28px">
+
+  <header style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px">
+    <div style="display: flex; align-items: center; gap: 14px">
+      <span aria-hidden="true" style="width: 52px; height: 52px; border-radius: 16px; background: #1E1433; display: inline-flex; align-items: center; justify-content: center">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FFF6E5" stroke-width="2" stroke-linecap="round"><path d="M4 20L14 10M10 4l10 10M4 4l6 6M14 14l6 6"></path></svg>
+      </span>
+      <div style="display: flex; flex-direction: column">
+        <span style="font-size: 13px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase">RAG Console · Compare</span>
+        <h1 style="margin: 0; font-size: 40px; font-weight: 800; line-height: 1; letter-spacing: -.02em">Blind Arena</h1>
+      </div>
+    </div>
+    <div role="status" aria-label="Scoreboard" style="display: flex; align-items: stretch; border-radius: 999px; overflow: hidden; border: 2px solid #1E1433; font-weight: 800; font-size: 20px">
+      <span style="padding: 8px 18px; background: #4B32C3; color: #FFFFFF">A {{score.a}}</span>
+      <span style="padding: 8px 14px; background: #FFFFFF; font-weight: 600; font-size: 15px; display: flex; align-items: center">{{score.ties}} ties · {{score.bad}} both bad</span>
+      <span style="padding: 8px 18px; background: #F2A93B; color: #1E1433">{{score.b}} B</span>
+    </div>
+  </header>
+
+  <section aria-label="Round" style="background: #1E1433; color: #FFF6E5; border-radius: 28px; padding: 28px; display: flex; flex-direction: column; gap: 16px">
+    <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; font-weight: 600">
+      <span>Round {{round}}</span>
+      <span style="color: #D9D0F5">Configs stay hidden until you vote</span>
+    </div>
+    <label for="ar-q" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Query</label>
+    <input id="ar-q" type="text" value="{{query}}" onChange="{{setQuery}}" onKeyDown="{{queryKey}}" style="border: 0; border-bottom: 2px solid #6A5A92; background: transparent; color: #FFF6E5; font-size: 34px; font-weight: 600; letter-spacing: -.01em; padding: 4px 0 10px; min-width: 0">
+    <div style="display: flex; flex-wrap: wrap; gap: 10px">
+      <button type="button" onClick="{{fight}}" style="min-height: 48px; padding: 0 24px; border-radius: 999px; border: 0; background: #FFF6E5; color: #1E1433; font-weight: 800; font-size: 17px">{{fightLabel}}</button>
+      <button type="button" onClick="{{shuffleQuery}}" style="min-height: 48px; padding: 0 20px; border-radius: 999px; border: 2px solid #6A5A92; background: transparent; color: #FFF6E5; font-weight: 600">Try another query</button>
+    </div>
+  </section>
+
+  <section aria-label="Answers" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px">
+    <sc-for list="{{cards}}" as="c" hint-placeholder-count="2">
+      <article style="{{c.style}}">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px">
+          <span style="font-size: 52px; font-weight: 800; line-height: .9; letter-spacing: -.04em">{{c.slot}}</span>
+          <sc-if value="{{c.revealed}}" hint-placeholder-val="{{ false }}">
+            <span style="{{c.badgeStyle}}">Config {{c.id}} · {{c.name}}</span>
+          </sc-if>
+          <sc-if value="{{c.hidden}}" hint-placeholder-val="{{ true }}">
+            <span style="padding: 6px 14px; border-radius: 999px; border: 2px dashed #1E1433; font-weight: 600; font-size: 14px">Config hidden</span>
+          </sc-if>
+        </div>
+        <p style="margin: 0; font-size: 19px; line-height: 1.55">{{c.answer}}</p>
+        <div style="display: flex; flex-direction: column; gap: 6px; border-top: 2px solid #1E143322; padding-top: 12px">
+          <span style="font-size: 13px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase">Sources it read</span>
+          <sc-for list="{{c.sources}}" as="s" hint-placeholder-count="3">
+            <span style="font-size: 14.5px"><span style="font-weight: 800">[{{s.n}}]</span> {{s.title}}</span>
+          </sc-for>
+        </div>
+        <sc-if value="{{c.revealed}}" hint-placeholder-val="{{ false }}">
+          <div style="display: flex; flex-wrap: wrap; gap: 6px">
+            <sc-for list="{{c.chips}}" as="k" hint-placeholder-count="5">
+              <span style="padding: 4px 10px; border-radius: 999px; background: #FFFFFF; border: 1.5px solid #1E1433; font-size: 13px; font-weight: 600">{{k.t}}</span>
+            </sc-for>
+          </div>
+        </sc-if>
+      </article>
+    </sc-for>
+  </section>
+
+  <sc-if value="{{canVote}}" hint-placeholder-val="{{ true }}">
+    <section aria-label="Vote" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px">
+      <sc-for list="{{votes}}" as="v" hint-placeholder-count="4">
+        <button type="button" onClick="{{v.cast}}" style="{{v.style}}">{{v.label}}</button>
+      </sc-for>
+    </section>
+  </sc-if>
+  <sc-if value="{{voted}}" hint-placeholder-val="{{ false }}">
+    <section aria-label="Verdict" style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; padding: 22px 26px; border-radius: 24px; background: #FFFFFF; border: 2px solid #1E1433">
+      <div style="display: flex; flex-direction: column">
+        <span style="font-size: 13px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase">Your verdict</span>
+        <span style="font-size: 28px; font-weight: 800; letter-spacing: -.01em">{{verdict}}</span>
+      </div>
+      <button type="button" onClick="{{nextRound}}" style="min-height: 52px; padding: 0 26px; border-radius: 999px; border: 0; background: #1E1433; color: #FFF6E5; font-weight: 800; font-size: 17px">Next round →</button>
+    </section>
+  </sc-if>
+
+  <section aria-label="Contenders" style="display: flex; flex-direction: column; gap: 14px">
+    <div style="display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 8px">
+      <h2 style="margin: 0; font-size: 28px; font-weight: 800; letter-spacing: -.01em">Contenders</h2>
+      <span style="font-size: 14px">Edits take effect on the next fight. Order is shuffled every round.</span>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px">
+      <sc-for list="{{contenders}}" as="c" hint-placeholder-count="2">
+        <div style="{{c.style}}">
+          <div style="display: flex; align-items: center; gap: 12px">
+            <span style="{{c.dot}}">{{c.id}}</span>
+            <span style="font-size: 22px; font-weight: 800">{{c.name}}</span>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 18px">
+            <div style="display: flex; flex-direction: column; gap: 6px">
+              <label for="{{c.id}}-ar-model" style="font-weight: 600; font-size: 14px">Model</label>
+              <select id="{{c.id}}-ar-model" value="{{c.d.model}}" onChange="{{c.setModel}}" style="min-height: 44px; padding: 0 10px">
+                <option value="claude-opus-5-5">Claude Opus 5.5</option>
+                <option value="claude-sonnet-5-5">Claude Sonnet 5.5</option>
+                <option value="claude-haiku-5-5">Claude Haiku 5.5</option>
+                <option value="gpt-4o">GPT-4o</option>
+                <option value="llama-3-70b">Llama 3 70B</option>
+              </select>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 6px">
+              <label for="{{c.id}}-ar-sec" style="font-weight: 600; font-size: 14px">Section boost</label>
+              <select id="{{c.id}}-ar-sec" value="{{c.d.section}}" onChange="{{c.setSection}}" style="min-height: 44px; padding: 0 10px">
+                <option value="none">None</option>
+                <option value="security">security/</option>
+                <option value="guides">guides/</option>
+                <option value="changelog">changelog/</option>
+                <option value="reference">reference/</option>
+              </select>
+            </div>
+            <sc-for list="{{c.sliders}}" as="s" hint-placeholder-count="5">
+              <div style="display: flex; flex-direction: column; gap: 2px">
+                <div style="display: flex; justify-content: space-between; font-size: 14px"><label for="{{s.id}}" style="font-weight: 600">{{s.label}}</label><span style="font-weight: 800">{{s.val}}</span></div>
+                <input id="{{s.id}}" type="range" min="{{s.min}}" max="{{s.max}}" step="{{s.step}}" value="{{s.raw}}" onChange="{{s.set}}">
+              </div>
+            </sc-for>
+            <label style="display: flex; align-items: center; gap: 10px; min-height: 44px; font-weight: 600; font-size: 14px"><input type="checkbox" checked="{{c.d.rerank}}" onChange="{{c.setRerank}}"> Rerank</label>
+            <div style="display: flex; flex-direction: column; gap: 6px; grid-column: 1 / -1">
+              <label for="{{c.id}}-ar-prompt" style="font-weight: 600; font-size: 14px">System prompt</label>
+              <textarea id="{{c.id}}-ar-prompt" rows="2" value="{{c.d.prompt}}" onChange="{{c.setPrompt}}" style="padding: 8px 12px; font-size: 14.5px; line-height: 1.5; resize: vertical"></textarea>
+            </div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section aria-label="History" style="display: flex; flex-direction: column; gap: 10px">
+    <h2 style="margin: 0; font-size: 22px; font-weight: 800">Past rounds</h2>
+    <sc-if value="{{noHistory}}" hint-placeholder-val="{{ false }}">
+      <span style="font-size: 15px">No votes yet. Read both answers, then pick one.</span>
+    </sc-if>
+    <ol style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px">
+      <sc-for list="{{history}}" as="h" hint-placeholder-count="2">
+        <li style="display: flex; justify-content: space-between; gap: 12px; padding: 10px 16px; border-radius: 14px; background: #FFFFFF; border: 1.5px solid #1E143333">
+          <span style="min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{h.q}}</span>
+          <span style="font-weight: 800; flex: none">{{h.w}}</span>
+        </li>
+      </sc-for>
+    </ol>
+  </section>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"revealBeforeVote":{"editor":"boolean","default":false},"$preview":{"width":1440,"height":1500}}'>
+var DOCS = [
+  ['d1','Rotating API keys','security',.92,.8,.95,'rotate rotation api keys key revoke','Create a new key, roll it out alongside the existing one, and revoke the old key only after traffic has switched over'],
+  ['d2','Key management overview','security',.78,.5,.7,'keys management workspace active api','Each workspace can hold two active keys at the same time, which makes an overlap window possible'],
+  ['d3','Zero-downtime deployments','guides',.66,.6,.62,'downtime deploy rolling restart without','Use a rolling restart so each instance picks up the new key without dropping requests'],
+  ['d4','Changelog: dual-key support','changelog',.71,1,.8,'dual key keys rotation outage changelog api','With dual-key support, both keys stay valid during the switch'],
+  ['d5','Troubleshooting 401 errors','guides',.55,.4,.5,'401 errors revoked key auth getting changing','If 401 errors appear afterwards, some service is still sending the revoked key'],
+  ['d6','Service accounts and scopes','security',.5,.3,.38,'service accounts scopes keys rotate','Giving each service its own key lets you rotate them one at a time'],
+  ['d7','Secrets in CI pipelines','guides',.48,.55,.42,'secrets ci pipelines keys store builds','Update the key in your CI secret store so new builds pick it up'],
+  ['d8','Legacy v1 authentication','security',.6,.05,.2,'legacy v1 tokens rotated reissued outage keys api','Legacy v1 tokens cannot be rotated and must be reissued, which causes a brief outage'],
+  ['d9','Webhook signing secrets','security',.4,.45,.25,'webhook signing secrets rotate grace','Webhook signing secrets rotate separately and are not affected'],
+  ['d10','Rate limits','reference',.2,.5,.1,'rate limits key quota api reset new','Rate limits apply per key, so the new key starts with its own quota'],
+  ['d11','Audit logs','security',.35,.6,.3,'audit logs key revocation','Each key creation and revocation shows up in the audit log'],
+  ['d12','SDK configuration','reference',.45,.7,.35,'sdk configuration environment key reload','SDKs read the key at startup, so restart clients after updating it']
+].map(function (a) { return { id: a[0], title: a[1], section: a[2], sem: a[3], fresh: a[4], rr: a[5], tags: a[6], fact: a[7] }; });
+var MODELS = { 'claude-opus-5-5': ['Opus 5.5', 3], 'claude-sonnet-5-5': ['Sonnet 5.5', 3], 'claude-haiku-5-5': ['Haiku 5.5', 2], 'gpt-4o': ['GPT-4o', 3], 'llama-3-70b': ['Llama 3 70B', 2] };
+var STOP = { how: 1, the: 1, and: 1, for: 1, you: 1, can: 1, what: 1, does: 1, with: 1, from: 1, are: 1, why: 1, when: 1, where: 1 };
+var SAMPLES = ['How do I rotate API keys without downtime?', 'Why am I getting 401 errors after changing keys?', 'Do rate limits reset when I create a new key?', 'Where do I store keys for CI builds?'];
+function terms(q) { return String(q || '').toLowerCase().split(/[^a-z0-9]+/).filter(function (t) { return t.length > 2 && !STOP[t]; }); }
+function has(text, t) { return text.indexOf(t) >= 0 || (t.length > 4 && t.slice(-1) === 's' && text.indexOf(t.slice(0, -1)) >= 0); }
+function rank(cfg, q) {
+  var ts = terms(q);
+  return DOCS.map(function (d) {
+    var hay = (d.title + ' ' + d.tags).toLowerCase();
+    var lex = ts.length ? ts.filter(function (t) { return has(hay, t); }).length / ts.length : 0;
+    var s = cfg.alpha * (d.sem * .75 + lex * .25) + (1 - cfg.alpha) * lex;
+    s += cfg.recency * d.fresh * .4;
+    if (ts.some(function (t) { return has(d.title.toLowerCase(), t); })) s += cfg.titleBoost * .3;
+    if (cfg.section !== 'none' && d.section === cfg.section) s += .25;
+    if (cfg.rerank) s = s * .6 + d.rr * .4;
+    return { doc: d, score: s };
+  }).sort(function (a, b) { return b.score - a.score; }).slice(0, cfg.topK);
+}
+function answer(cfg, rows) {
+  if (!rows.length) return '';
+  var n = /one or two/.test(cfg.prompt) ? 1 : MODELS[cfg.model][1];
+  return rows.slice(0, n).map(function (r, i) { return r.doc.fact + ' [' + (i + 1) + '].'; }).join(' ') + (cfg.temperature > .6 ? ' Other services may need the same update.' : '');
+}
+var LOOK = { A: { bg: '#4B32C3', fg: '#FFFFFF', tint: '#ECE7FF' }, B: { bg: '#F2A93B', fg: '#1E1433', tint: '#FFEBC7' } };
+function mk(id, name, d) { return { id: id, name: name, d: d, a: Object.assign({}, d) }; }
+
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { query: SAMPLES[0], ranQuery: SAMPLES[0], qi: 0, round: 1, flip: true, vote: null, busy: false, history: [], tally: { a: 0, b: 0, ties: 0, bad: 0 }, cs: [
+      mk('A', 'Baseline', { model: 'claude-sonnet-5-5', temperature: .2, topK: 4, alpha: .5, rerank: false, recency: 0, titleBoost: 0, section: 'none', prompt: 'Answer in one or two sentences using only the context. Cite as [n].' }),
+      mk('B', 'Hybrid + rerank', { model: 'claude-opus-5-5', temperature: .3, topK: 5, alpha: .7, rerank: true, recency: .3, titleBoost: .2, section: 'none', prompt: 'Give a step-by-step answer grounded in the context. Cite every step as [n].' })
+    ] };
+  }
+  componentWillUnmount() { clearTimeout(this.t); }
+  upd(i, p) { this.setState({ cs: this.state.cs.map(function (c, j) { return j === i ? Object.assign({}, c, { d: Object.assign({}, c.d, p) }) : c; }) }); }
+  fight() {
+    var self = this; this.setState({ busy: true }); clearTimeout(this.t);
+    this.t = setTimeout(function () { self.setState(function (s) { return { busy: false, vote: null, flip: Math.random() < .5, ranQuery: s.query, cs: s.cs.map(function (c) { return Object.assign({}, c, { a: Object.assign({}, c.d) }); }) }; }); }, 450);
+  }
+  renderVals() {
+    var self = this, s = this.state, peek = this.props.revealBeforeVote ?? false;
+    var order = s.flip ? [1, 0] : [0, 1];
+    var revealed = peek || s.vote != null;
+    var ranked = s.cs.map(function (c) { return rank(c.a, s.ranQuery); });
+    var winner = s.vote == null ? null : (s.vote === 'tie' || s.vote === 'bad' ? s.vote : order[s.vote]);
+    var cards = order.map(function (ci, slot) {
+      var c = s.cs[ci], L = LOOK[c.id], rows = ranked[ci], won = winner === ci;
+      var bg = revealed ? L.tint : '#FFFFFF';
+      return { slot: slot + 1, id: c.id, name: c.name, revealed: revealed, hidden: !revealed,
+        answer: answer(c.a, rows),
+        sources: rows.slice(0, 3).map(function (r, k) { return { n: k + 1, title: r.doc.title }; }),
+        chips: [MODELS[c.a.model][0], 'k ' + c.a.topK, 'α ' + c.a.alpha.toFixed(2), c.a.rerank ? 'rerank' : 'no rerank', 'fresh ' + c.a.recency.toFixed(1), c.a.section === 'none' ? 'no section boost' : c.a.section + '/ boost'].map(function (t) { return { t: t }; }),
+        badgeStyle: 'padding: 6px 14px; border-radius: 999px; background: ' + L.bg + '; color: ' + L.fg + '; font-weight: 800; font-size: 14px',
+        style: 'border-radius: 28px; padding: 26px; display: flex; flex-direction: column; gap: 16px; background: ' + bg + '; border: ' + (won ? '4px solid #1E1433' : '2px solid #1E1433') + '; box-shadow: ' + (won ? '8px 8px 0 #1E1433' : '4px 4px 0 #1E143322') + '; transition: all .2s' };
+    });
+    var vb = 'min-height: 64px; border-radius: 18px; border: 2px solid #1E1433; font-weight: 800; font-size: 18px; ';
+    var cast = function (v) { return function () {
+      var real = v === 'tie' || v === 'bad' ? v : order[v];
+      var t = Object.assign({}, s.tally);
+      var label = real === 'tie' ? 'Tie' : (real === 'bad' ? 'Both bad' : s.cs[real].id + ' wins');
+      if (real === 'tie') t.ties++; else if (real === 'bad') t.bad++; else if (real === 0) t.a++; else t.b++;
+      self.setState({ vote: v, tally: t, history: [{ q: s.ranQuery, w: label }].concat(s.history).slice(0, 6) });
+    }; };
+    var verdict = '';
+    if (winner != null) verdict = winner === 'tie' ? 'A tie. Both configs did equally well.' : (winner === 'bad' ? 'Neither answer was good enough.' : 'Config ' + s.cs[winner].id + ' (' + s.cs[winner].name + ') wins this round.');
+    var contenders = s.cs.map(function (c, i) {
+      var L = LOOK[c.id], d = c.d;
+      var sl = function (key, label, min, max, step) { return { id: c.id + '-ar-' + key, label: label, min: min, max: max, step: step, raw: d[key], val: step < 1 ? d[key].toFixed(2) : String(d[key]), set: function (e) { var p = {}; p[key] = Number(e.target.value); self.upd(i, p); } }; };
+      return { id: c.id, name: c.name, d: d,
+        style: 'border-radius: 24px; padding: 22px; display: flex; flex-direction: column; gap: 16px; background: ' + L.tint + '; border: 2px solid #1E1433',
+        dot: 'width: 40px; height: 40px; border-radius: 12px; background: ' + L.bg + '; color: ' + L.fg + '; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; font-size: 20px',
+        sliders: [sl('topK', 'Top K', 1, 10, 1), sl('temperature', 'Temperature', 0, 1, .05), sl('alpha', 'Hybrid α', 0, 1, .05), sl('recency', 'Recency boost', 0, 1, .05), sl('titleBoost', 'Title boost', 0, 1, .05)],
+        setModel: function (e) { self.upd(i, { model: e.target.value }); },
+        setSection: function (e) { self.upd(i, { section: e.target.value }); },
+        setRerank: function (e) { self.upd(i, { rerank: e.target.checked }); },
+        setPrompt: function (e) { self.upd(i, { prompt: e.target.value }); } };
+    });
+    return {
+      query: s.query, round: s.round, fightLabel: s.busy ? 'Generating…' : 'Fight', score: s.tally,
+      cards: cards, canVote: s.vote == null, voted: s.vote != null, verdict: verdict,
+      votes: [['1 is better', 0, '#FFFFFF'], ['Tie', 'tie', '#FFFFFF'], ['2 is better', 1, '#FFFFFF'], ['Both bad', 'bad', '#FFE1DA']].map(function (v) { return { label: v[0], cast: cast(v[1]), style: vb + 'background: ' + v[2] }; }),
+      contenders: contenders, history: s.history, noHistory: s.history.length === 0,
+      setQuery: function (e) { self.setState({ query: e.target.value }); },
+      queryKey: function (e) { if (e.key === 'Enter') self.fight(); },
+      fight: function () { self.fight(); },
+      shuffleQuery: function () { var qi = (s.qi + 1) % SAMPLES.length; self.setState({ qi: qi, query: SAMPLES[qi] }); },
+      nextRound: function () { var qi = (s.qi + 1) % SAMPLES.length; self.setState({ qi: qi, query: SAMPLES[qi], round: s.round + 1 }, function () { self.fight(); }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

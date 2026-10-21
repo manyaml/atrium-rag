@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Rank River — compare</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&amp;family=Instrument+Sans:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0;background:#F3EFE6}
+a{color:#B4410C}a:hover{color:#7C2D0A}
+input,select,textarea,button{font:inherit;color:inherit}
+button{cursor:pointer}
+input[type=range]{accent-color:#16130F;width:100%;margin:0;height:24px}
+input[type=checkbox]{accent-color:#16130F;width:18px;height:18px;margin:0}
+:focus-visible{outline:2px solid #1F4E79;outline-offset:2px}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #F3EFE6; color: #16130F; font-family: 'Instrument Sans', system-ui, sans-serif; font-size: 15px; line-height: 1.5">
+<div style="max-width: 1280px; margin: 0 auto; padding: 36px 32px 56px; display: flex; flex-direction: column; gap: 28px">
+
+  <header style="display: flex; flex-direction: column; gap: 14px; border-bottom: 3px double #16130F; padding-bottom: 22px">
+    <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; font-size: 12.5px; letter-spacing: .14em; text-transform: uppercase">
+      <span>RAG Console — Compare</span>
+      <span>Three recipes · one question · {{corpusSize}} chunks</span>
+    </div>
+    <label for="rr-q" style="font-family: 'Fraunces', Georgia, serif; font-style: italic; font-size: 18px; color: #5F584C">Where does each answer come from when someone asks…</label>
+    <div style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 16px">
+      <input id="rr-q" type="text" value="{{query}}" onChange="{{setQuery}}" onKeyDown="{{queryKey}}" style="flex: 1 1 520px; min-width: 0; border: 0; border-bottom: 2px solid #16130F; background: transparent; padding: 4px 0 8px; font-family: 'Fraunces', Georgia, serif; font-size: 40px; line-height: 1.15; font-weight: 400">
+      <button type="button" onClick="{{runAll}}" style="min-height: 48px; padding: 0 24px; border-radius: 999px; border: 2px solid #16130F; background: #16130F; color: #F3EFE6; font-weight: 600">{{runLabel}}</button>
+    </div>
+  </header>
+
+  <div style="display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-start">
+    <section aria-label="Rank flow" style="flex: 999 1 720px; min-width: 0; display: flex; flex-direction: column; gap: 14px">
+      <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px">
+        <h2 style="margin: 0; font-family: 'Fraunces', Georgia, serif; font-weight: 600; font-size: 22px">How the ranking flows from recipe to recipe</h2>
+        <span style="font-size: 13px; color: #5F584C">Select a document to trace it. Select a recipe header to edit it.</span>
+      </div>
+      <div style="overflow-x: auto; padding-bottom: 8px">
+        <div style="position: relative; width: {{chartW}}; min-height: {{chartH}}">
+          <sc-for list="{{heads}}" as="h" hint-placeholder-count="3">
+            <button type="button" onClick="{{h.edit}}" aria-pressed="{{h.on}}" style="{{h.style}}">
+              <span style="display: flex; align-items: baseline; gap: 8px">
+                <span style="font-family: 'Fraunces', Georgia, serif; font-size: 30px; font-weight: 600; line-height: 1">{{h.id}}</span>
+                <span style="font-weight: 600">{{h.name}}</span>
+              </span>
+              <span style="font-size: 12.5px; color: #5F584C; text-align: left">{{h.recipe}}</span>
+            </button>
+          </sc-for>
+          <sc-for list="{{lines}}" as="l" hint-placeholder-count="10">
+            <span aria-hidden="true" style="{{l.style}}"></span>
+          </sc-for>
+          <sc-for list="{{nodes}}" as="n" hint-placeholder-count="13">
+            <button type="button" onClick="{{n.pick}}" aria-pressed="{{n.on}}" style="{{n.style}}">
+              <span style="font-family: 'Fraunces', Georgia, serif; font-size: 15px; font-weight: 600; width: 18px; flex: none">{{n.rank}}</span>
+              <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left">{{n.title}}</span>
+            </button>
+          </sc-for>
+        </div>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; gap: 18px; font-size: 13px; color: #3E3830">
+        <span style="display: inline-flex; align-items: center; gap: 8px"><span style="width: 28px; height: 3px; background: #1F4E79"></span>rises</span>
+        <span style="display: inline-flex; align-items: center; gap: 8px"><span style="width: 28px; height: 3px; background: #B4410C"></span>falls</span>
+        <span style="display: inline-flex; align-items: center; gap: 8px"><span style="width: 28px; height: 3px; background: #B9B09E"></span>holds</span>
+        <span style="display: inline-flex; align-items: center; gap: 8px"><span style="width: 28px; border-top: 2px dashed #8C8473"></span>enters or drops out</span>
+      </div>
+    </section>
+
+    <aside aria-label="Document trace" style="flex: 1 1 300px; min-width: 0; border-top: 2px solid #16130F; padding-top: 14px; display: flex; flex-direction: column; gap: 12px">
+      <span style="font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: #5F584C">Tracing</span>
+      <h3 style="margin: 0; font-family: 'Fraunces', Georgia, serif; font-size: 26px; font-weight: 400; line-height: 1.2">{{trace.title}}</h3>
+      <span style="font-family: ui-monospace, Menlo, monospace; font-size: 12.5px; color: #5F584C">{{trace.path}}</span>
+      <p style="margin: 0; font-family: 'Fraunces', Georgia, serif; font-style: italic; font-size: 16px; color: #3E3830">“{{trace.fact}}.”</p>
+      <dl style="margin: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid #CFC6B2">
+        <sc-for list="{{trace.cells}}" as="t" hint-placeholder-count="3">
+          <div style="padding: 10px 0; display: flex; flex-direction: column; gap: 2px">
+            <dt style="font-size: 12px; color: #5F584C">Recipe {{t.id}}</dt>
+            <dd style="margin: 0; font-family: 'Fraunces', Georgia, serif; font-size: 28px; line-height: 1">{{t.rank}}</dd>
+            <dd style="margin: 0; font-size: 12px; color: #5F584C">{{t.score}}</dd>
+          </div>
+        </sc-for>
+      </dl>
+    </aside>
+  </div>
+
+  <section aria-label="Answers" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 0; border-top: 2px solid #16130F">
+    <sc-for list="{{answers}}" as="a" hint-placeholder-count="3">
+      <article style="padding: 18px 22px 18px 0; display: flex; flex-direction: column; gap: 8px; border-right: 1px solid #CFC6B2; margin-right: 22px">
+        <span style="font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: #5F584C">Recipe {{a.id}} answers</span>
+        <p style="margin: 0; font-family: 'Fraunces', Georgia, serif; font-size: 17px; line-height: 1.55">{{a.text}}</p>
+      </article>
+    </sc-for>
+  </section>
+
+  <section aria-label="Edit recipe" style="background: #FBF8F1; border: 1px solid #CFC6B2; padding: 24px; display: flex; flex-direction: column; gap: 20px">
+    <div style="display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap">
+      <h2 style="margin: 0; font-family: 'Fraunces', Georgia, serif; font-weight: 400; font-size: 28px">Recipe {{ed.id}} <em style="color: #5F584C">— {{ed.name}}</em></h2>
+      <sc-if value="{{ed.stale}}" hint-placeholder-val="{{ false }}">
+        <span style="font-size: 13px; font-weight: 600; color: #B4410C">Changed — run again to re-flow</span>
+      </sc-if>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px 32px">
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <label for="rr-model" style="font-weight: 600">Model</label>
+        <select id="rr-model" value="{{ed.d.model}}" onChange="{{ed.setModel}}" style="min-height: 42px; padding: 0 10px; border: 1px solid #16130F; background: #FFFFFF">
+          <option value="claude-opus-5-5">Claude Opus 5.5</option>
+          <option value="claude-sonnet-5-5">Claude Sonnet 5.5</option>
+          <option value="claude-haiku-5-5">Claude Haiku 5.5</option>
+          <option value="gpt-4o">GPT-4o</option>
+          <option value="llama-3-70b">Llama 3 70B</option>
+        </select>
+      </div>
+      <sc-for list="{{ed.sliders}}" as="s" hint-placeholder-count="5">
+        <div style="display: flex; flex-direction: column; gap: 4px">
+          <div style="display: flex; justify-content: space-between"><label for="{{s.id}}" style="font-weight: 600">{{s.label}}</label><span style="font-family: 'Fraunces', Georgia, serif; font-size: 18px">{{s.val}}</span></div>
+          <input id="{{s.id}}" type="range" min="{{s.min}}" max="{{s.max}}" step="{{s.step}}" value="{{s.raw}}" onChange="{{s.set}}">
+          <span style="font-size: 12.5px; color: #5F584C">{{s.hint}}</span>
+        </div>
+      </sc-for>
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <label for="rr-sec" style="font-weight: 600">Section boost</label>
+        <select id="rr-sec" value="{{ed.d.section}}" onChange="{{ed.setSection}}" style="min-height: 42px; padding: 0 10px; border: 1px solid #16130F; background: #FFFFFF">
+          <option value="none">None</option>
+          <option value="security">security/</option>
+          <option value="guides">guides/</option>
+          <option value="changelog">changelog/</option>
+          <option value="reference">reference/</option>
+        </select>
+        <label style="display: flex; align-items: center; gap: 10px; min-height: 40px"><input type="checkbox" checked="{{ed.d.rerank}}" onChange="{{ed.setRerank}}"> Cross-encoder rerank</label>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 6px; grid-column: 1 / -1">
+        <label for="rr-prompt" style="font-weight: 600">System prompt</label>
+        <textarea id="rr-prompt" rows="3" value="{{ed.d.prompt}}" onChange="{{ed.setPrompt}}" style="padding: 10px 12px; border: 1px solid #16130F; background: #FFFFFF; font-family: 'Fraunces', Georgia, serif; font-size: 16px; line-height: 1.5; resize: vertical"></textarea>
+      </div>
+    </div>
+  </section>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"rowHeight":{"editor":"int","default":46,"min":36,"max":64},"$preview":{"width":1440,"height":1500}}'>
+var DOCS = [
+  ['d1','Rotating API keys','security/api-keys.md','security',.92,.8,.95,'rotate rotation api keys key revoke','Create a new key, roll it out alongside the existing one, and revoke the old key only after traffic has switched over'],
+  ['d2','Key management overview','security/overview.md','security',.78,.5,.7,'keys management workspace active api','Each workspace can hold two active keys at the same time, which makes an overlap window possible'],
+  ['d3','Zero-downtime deployments','guides/zero-downtime.md','guides',.66,.6,.62,'downtime deploy rolling restart without','Use a rolling restart so each instance picks up the new key without dropping requests'],
+  ['d4','Changelog: dual-key support','changelog/2026-09.md','changelog',.71,1,.8,'dual key keys rotation outage changelog api','With dual-key support, both keys stay valid during the switch'],
+  ['d5','Troubleshooting 401 errors','guides/errors-401.md','guides',.55,.4,.5,'401 errors revoked key auth','If 401 errors appear afterwards, some service is still sending the revoked key'],
+  ['d6','Service accounts and scopes','security/service-accounts.md','security',.5,.3,.38,'service accounts scopes keys rotate','Giving each service its own key lets you rotate them one at a time'],
+  ['d7','Secrets in CI pipelines','guides/ci-secrets.md','guides',.48,.55,.42,'secrets ci pipelines keys','Update the key in your CI secret store so new builds pick it up'],
+  ['d8','Legacy v1 authentication','security/legacy-v1.md','security',.6,.05,.2,'legacy v1 tokens rotated reissued outage keys api','Legacy v1 tokens cannot be rotated and must be reissued, which causes a brief outage'],
+  ['d9','Webhook signing secrets','security/webhooks.md','security',.4,.45,.25,'webhook signing secrets rotate grace','Webhook signing secrets rotate separately and are not affected'],
+  ['d10','Rate limits','reference/rate-limits.md','reference',.2,.5,.1,'rate limits key quota api','Rate limits apply per key, so the new key starts with its own quota'],
+  ['d11','Audit logs','security/audit-logs.md','security',.35,.6,.3,'audit logs key revocation','Each key creation and revocation shows up in the audit log'],
+  ['d12','SDK configuration','reference/sdk-config.md','reference',.45,.7,.35,'sdk configuration environment key reload','SDKs read the key at startup, so restart clients after updating it']
+].map(function (a) { return { id: a[0], title: a[1], path: a[2], section: a[3], sem: a[4], fresh: a[5], rr: a[6], tags: a[7], fact: a[8] }; });
+var MODELS = { 'claude-opus-5-5': ['Opus 5.5', 3], 'claude-sonnet-5-5': ['Sonnet 5.5', 3], 'claude-haiku-5-5': ['Haiku 5.5', 2], 'gpt-4o': ['GPT-4o', 3], 'llama-3-70b': ['Llama 3 70B', 2] };
+var STOP = { how: 1, the: 1, and: 1, for: 1, you: 1, can: 1, what: 1, does: 1, with: 1, from: 1, are: 1, why: 1 };
+function terms(q) { return String(q || '').toLowerCase().split(/[^a-z0-9]+/).filter(function (t) { return t.length > 2 && !STOP[t]; }); }
+function has(text, t) { return text.indexOf(t) >= 0 || (t.length > 4 && t.slice(-1) === 's' && text.indexOf(t.slice(0, -1)) >= 0); }
+function rank(cfg, q) {
+  var ts = terms(q);
+  return DOCS.map(function (d) {
+    var hay = (d.title + ' ' + d.tags).toLowerCase();
+    var lex = ts.length ? ts.filter(function (t) { return has(hay, t); }).length / ts.length : 0;
+    var s = cfg.alpha * (d.sem * .75 + lex * .25) + (1 - cfg.alpha) * lex;
+    s += cfg.recency * d.fresh * .4;
+    if (ts.some(function (t) { return has(d.title.toLowerCase(), t); })) s += cfg.titleBoost * .3;
+    if (cfg.section !== 'none' && d.section === cfg.section) s += .25;
+    if (cfg.rerank) s = s * .6 + d.rr * .4;
+    return { doc: d, score: s };
+  }).sort(function (a, b) { return b.score - a.score; }).slice(0, cfg.topK);
+}
+function answer(cfg, rows) {
+  if (!rows.length) return '';
+  var n = /one or two/.test(cfg.prompt) ? 1 : MODELS[cfg.model][1];
+  return rows.slice(0, n).map(function (r, i) { return r.doc.fact + ' [' + (i + 1) + '].'; }).join(' ') + (cfg.temperature > .6 ? ' Other services may need the same update.' : '');
+}
+function mk(id, name, d) { return { id: id, name: name, d: d, a: Object.assign({}, d) }; }
+var PW = 210, GAP = 150, TOP = 92;
+
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    var q = 'How do I rotate API keys without downtime?';
+    this.state = { query: q, ranQuery: q, running: false, edit: 1, sel: 'd4', recipes: [
+      mk('A', 'Baseline', { model: 'claude-sonnet-5-5', temperature: .2, topK: 5, alpha: .5, rerank: false, recency: 0, titleBoost: 0, section: 'none', prompt: 'Answer in one or two sentences using only the context. Cite as [n].' }),
+      mk('B', 'Hybrid + rerank', { model: 'claude-sonnet-5-5', temperature: .2, topK: 6, alpha: .7, rerank: true, recency: .3, titleBoost: .2, section: 'none', prompt: 'Give a step-by-step answer grounded in the context. Cite every step as [n].' }),
+      mk('C', 'Fresh first', { model: 'claude-haiku-5-5', temperature: .5, topK: 5, alpha: .4, rerank: false, recency: .9, titleBoost: .4, section: 'changelog', prompt: 'Give a step-by-step answer grounded in the context. Cite every step as [n].' })
+    ] };
+  }
+  componentWillUnmount() { clearTimeout(this.t); }
+  upd(p) { var i = this.state.edit; this.setState({ recipes: this.state.recipes.map(function (c, j) { return j === i ? Object.assign({}, c, { d: Object.assign({}, c.d, p) }) : c; }) }); }
+  run() {
+    var self = this; this.setState({ running: true }); clearTimeout(this.t);
+    this.t = setTimeout(function () { self.setState(function (s) { return { running: false, ranQuery: s.query, recipes: s.recipes.map(function (c) { return Object.assign({}, c, { a: Object.assign({}, c.d) }); }) }; }); }, 450);
+  }
+  renderVals() {
+    var self = this, s = this.state, RH = this.props.rowHeight ?? 46;
+    var ranked = s.recipes.map(function (c) { return rank(c.a, s.ranQuery); });
+    var pos = ranked.map(function (rows) { var m = {}; rows.forEach(function (r, k) { m[r.doc.id] = k; }); return m; });
+    var colX = function (i) { return i * (PW + GAP); };
+    var cy = function (k) { return TOP + k * RH + (RH - 8) / 2; };
+    var sel = s.sel, anySel = !!sel;
+    var heads = s.recipes.map(function (c, i) {
+      var on = s.edit === i;
+      return { id: c.id, name: c.name, on: on,
+        recipe: MODELS[c.a.model][0] + ' · k ' + c.a.topK + ' · α ' + c.a.alpha.toFixed(2) + (c.a.rerank ? ' · rerank' : '') + (c.a.recency ? ' · fresh ' + c.a.recency.toFixed(1) : ''),
+        style: 'position: absolute; left: ' + colX(i) + 'px; top: 0; width: ' + PW + 'px; min-height: 72px; padding: 6px 8px; display: flex; flex-direction: column; gap: 4px; align-items: flex-start; background: ' + (on ? '#16130F0D' : 'transparent') + '; border: 0; border-top: ' + (on ? '4px solid #16130F' : '1px solid #16130F') + '; text-align: left',
+        edit: function () { self.setState({ edit: i }); } };
+    });
+    var nodes = [], lines = [];
+    ranked.forEach(function (rows, i) {
+      rows.forEach(function (r, k) {
+        var on = r.doc.id === sel, dim = anySel && !on;
+        nodes.push({ rank: k + 1, title: r.doc.title, on: on,
+          style: 'position: absolute; left: ' + colX(i) + 'px; top: ' + (TOP + k * RH) + 'px; width: ' + PW + 'px; height: ' + (RH - 8) + 'px; display: flex; align-items: center; gap: 8px; padding: 0 10px; box-sizing: border-box; font-size: 14px; border: 1px solid ' + (on ? '#B4410C' : '#16130F') + '; background: ' + (on ? '#B4410C' : '#FBF8F1') + '; color: ' + (on ? '#FFFFFF' : '#16130F') + '; opacity: ' + (dim ? '.55' : '1') + '; border-radius: 2px',
+          pick: function () { self.setState({ sel: sel === r.doc.id ? null : r.doc.id }); } });
+        var x1 = colX(i) + PW, y1 = cy(k);
+        if (i < ranked.length - 1) {
+          var k2 = pos[i + 1][r.doc.id];
+          if (k2 != null) {
+            var x2 = colX(i + 1), y2 = cy(k2), dx = x2 - x1, dy = y2 - y1;
+            var L = Math.sqrt(dx * dx + dy * dy), ang = Math.atan2(dy, dx);
+            var col = k2 < k ? '#1F4E79' : (k2 > k ? '#B4410C' : '#B9B09E');
+            lines.push({ style: 'position: absolute; left: ' + x1 + 'px; top: ' + y1 + 'px; width: ' + L + 'px; height: 0; border-top: ' + (on ? '4px' : '2.5px') + ' solid ' + (on ? '#B4410C' : col) + '; transform-origin: 0 0; transform: rotate(' + ang + 'rad); opacity: ' + (dim ? '.2' : '1') });
+          } else {
+            lines.push({ style: 'position: absolute; left: ' + x1 + 'px; top: ' + y1 + 'px; width: 44px; height: 0; border-top: 2px dashed #8C8473; opacity: ' + (dim ? '.2' : '1') });
+          }
+        }
+        if (i > 0 && pos[i - 1][r.doc.id] == null) {
+          lines.push({ style: 'position: absolute; left: ' + (colX(i) - 44) + 'px; top: ' + y1 + 'px; width: 44px; height: 0; border-top: 2px dashed #8C8473; opacity: ' + (dim ? '.2' : '1') });
+        }
+      });
+    });
+    var maxK = Math.max.apply(null, ranked.map(function (r) { return r.length; }));
+    var doc = DOCS.filter(function (d) { return d.id === sel; })[0] || ranked[0][0].doc;
+    var trace = { title: doc.title, path: doc.path, fact: doc.fact, cells: s.recipes.map(function (c, i) {
+      var k = pos[i][doc.id], row = k != null ? ranked[i][k] : null;
+      return { id: c.id, rank: row ? '#' + (k + 1) : '—', score: row ? 'score ' + row.score.toFixed(3) : 'not retrieved' };
+    }) };
+    var e = s.recipes[s.edit], d = e.d;
+    var sl = function (key, label, min, max, step, hint) { return { id: 'rr-' + key, label: label, min: min, max: max, step: step, raw: d[key], hint: hint, val: step < 1 ? d[key].toFixed(2) : String(d[key]), set: function (ev) { var p = {}; p[key] = Number(ev.target.value); self.upd(p); } }; };
+    return {
+      query: s.query, corpusSize: DOCS.length, runLabel: s.running ? 'Flowing…' : 'Run all three',
+      chartW: (colX(s.recipes.length - 1) + PW) + 'px', chartH: (TOP + maxK * RH + 8) + 'px',
+      heads: heads, nodes: nodes, lines: lines, trace: trace,
+      answers: s.recipes.map(function (c, i) { return { id: c.id, text: answer(c.a, ranked[i]) }; }),
+      ed: { id: e.id, name: e.name, d: d, stale: JSON.stringify(e.d) !== JSON.stringify(e.a) || s.query !== s.ranQuery,
+        sliders: [sl('topK', 'Top K', 1, 10, 1, 'How many chunks reach the model'), sl('alpha', 'Hybrid weight', 0, 1, .05, '0 = keyword only, 1 = semantic only'), sl('recency', 'Recency boost', 0, 1, .05, 'Favours recently updated docs'), sl('titleBoost', 'Title match boost', 0, 1, .05, 'Favours query terms in the title'), sl('temperature', 'Temperature', 0, 1, .05, 'Higher drifts beyond the sources')],
+        setModel: function (ev) { self.upd({ model: ev.target.value }); },
+        setSection: function (ev) { self.upd({ section: ev.target.value }); },
+        setRerank: function (ev) { self.upd({ rerank: ev.target.checked }); },
+        setPrompt: function (ev) { self.upd({ prompt: ev.target.value }); } },
+      setQuery: function (ev) { self.setState({ query: ev.target.value }); },
+      queryKey: function (ev) { if (ev.key === 'Enter') self.run(); },
+      runAll: function () { self.run(); }
+    };
+  }
+}
+</script>
+</body>
+</html>
