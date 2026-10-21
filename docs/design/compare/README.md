@@ -5,6 +5,12 @@ inference configurations and read the results side by side.
 
 Live canvas: https://claude.ai/artifact/VZqAHyiJK9PXRpqSWBibmM (private until shared)
 
+![Compare screen — three variants side by side](screenshots/compare-inference-params.png)
+
+Tracing a document across variants, with B marked as the pick:
+
+![Compare screen — document trace and best pick](screenshots/compare-trace-and-pick.png)
+
 ## Files
 
 | File | What it is |
